@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - SAMM X MODZ</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: white; padding: 20px; }
+        .admin-container { max-width: 800px; margin: 0 auto; background: #222; padding: 20px; border-radius: 10px; border: 1px solid #00ffcc; }
+        h1 { color: #00ffcc; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; }
+        input, select { width: 100%; padding: 10px; background: #333; border: 1px solid #555; color: white; border-radius: 5px; }
+        button { background: #00ffcc; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        button:hover { background: #fff; }
+        .file-list { margin-top: 20px; border-top: 1px solid #444; padding-top: 20px; }
+        .file-item { background: #333; padding: 10px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { background: #ff4444; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; width: auto; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <h1>QUẢN TRỊ VIÊN: SAMM X MODZ</h1>
+    
+    <div class="form-group">
+        <label>Chọn khu vực:</label>
+        <select id="fileCategory">
+            <option value="ff">AIM HACK FREE FIRE</option>
+            <option value="lq">AIM HACK LIÊN QUÂN</option>
+            <option value="3105">FILE 3105</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Tên File / Tiêu đề:</label>
+        <input type="text" id="fileName" placeholder="Ví dụ: Aim Hack FF V2">
+    </div>
+
+    <div class="form-group">
+        <label>Link tải File (Google Drive, v.v.):</label>
+        <input type="text" id="fileLink" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+        <label>Chọn ảnh (Từ thư viện):</label>
+        <input type="file" id="fileImage" accept="image/*">
+    </div>
+
+    <button onclick="addFile()">CẬP NHẬT FILE LÊN WEB</button>
+
+    <div class="file-list" id="fileList">
+        <h3>Danh sách File đã đăng:</h3>
+        <!-- File sẽ được hiển thị ở đây -->
+        <div class="file-item">
+            <span>Aim Hack FF V1 (Free Fire)</span>
+            <button class="btn-del" onclick="this.parentElement.remove()">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addFile() {
+        var name = document.getElementById('fileName').value;
+        var link = document.getElementById('fileLink').value;
+        var category = document.getElementById('fileCategory').value;
+
+        if (name === '' || link === '') {
+            alert('Vui lòng nhập đủ Tên File và Link tải!');
+            return;
+        }
+
+        var fileList = document.getElementById('fileList');
+        var newItem = document.createElement('div');
+        newItem.className = 'file-item';
+        newItem.innerHTML = `
+            <span>${name} (${category.toUpperCase()})</span>
+            <button class="btn-del" onclick="this.parentElement.remove()">Xóa</button>
+        `;
+        fileList.appendChild(newItem);
+
+        // Reset form
+        document.getElementById('fileName').value = '';
+        document.getElementById('fileLink').value = '';
+        
+        alert('Đã thêm file vào danh sách (Demo). Để lưu thực sự lên web, cần kết nối Database!');
+    }
+</script>
+
+</body>
+</html>

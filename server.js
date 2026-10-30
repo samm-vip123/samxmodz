@@ -3,57 +3,89 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Cho phép trang web (index.html) gọi API từ Backend này
-app.use(cors());
+// Cấu hình CORS để không bị chặn kết nối từ Github Pages/Render Static
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST']
+}));
 app.use(express.json());
 
-// --- GIẢ LẬP DATABASE (Lưu trên RAM) ---
-const users = []; 
-// Mảng chứa file, Admin có thể thêm qua API (nếu cần)
+// --- DATABASE GIẢ LẬP ---
+let users = []; 
 let files = [
-    { id: 1, title: 'AIM HACK FREE FIRE', category: 'ff', desc: 'Phiên bản mới nhất - Cập nhật bởi ADMIN' },
-    { id: 2, title: 'AIM HACK LIÊN QUÂN', category: 'lq', desc: 'Phiên bản mới nhất - Cập nhật bởi ADMIN' }
+    { 
+        id: 1, 
+        title: 'AIM HACK FREE FIRE', 
+        imageUrl: 'https://i.ibb.co/680hYh2/freefire.jpg', 
+        link: 'https://google.com' 
+    }
 ];
 
-// --- API ĐĂNG KÝ ---
-app.post('/api/register', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'Vui lòng nhập đủ Tài khoản và Mật khẩu' });
-    
-    const existingUser = users.find(u => u.username === username);
-    if (existingUser) return res.status(400).json({ error: 'Tài khoản này đã tồn tại!' });
-
-    users.push({ username, password });
-    res.json({ message: 'Đăng ký thành công! Hãy đăng nhập.' });
+// ================= API CƠ BẢN =================
+app.get('/', (req, res) => {
+    res.send('Backend SAMM X MODZ đang hoạt động!');
 });
 
-// --- API ĐĂNG NHẬP ---
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-    
-    if (user) {
-        // Trong thực tế sẽ trả về Token (JWT), ở đây giả lập trả về thông tin user
-        res.json({ message: 'Đăng nhập thành công!', user: { username: user.username } });
-    } else {
-        res.status(401).json({ error: 'Sai tài khoản hoặc mật khẩu!' });
+// ================= API NGƯỜI DÙNG =================
+app.post('/api/register', (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ error: 'Vui lòng nhập đủ thông tin' });
+        
+        const userExists = users.find(u => u.username === username);
+        if (userExists) return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
+        
+        users.push({ username, password });
+        res.json({ message: 'Đăng ký thành công!' });
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi Server' });
     }
 });
 
-// --- API LẤY DANH SÁCH FILE (Dành cho trang chủ) ---
+app.post('/api/login', (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const user = users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            res.json({ message: 'Đăng nhập thành công!', user: { username: user.username } });
+        } else {
+            res.status(401).json({ error: 'Sai tài khoản hoặc mật khẩu' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi Server' });
+    }
+});
+
+// ================= API FILE =================
 app.get('/api/files', (req, res) => {
     res.json(files);
 });
 
-// --- API THÊM FILE (Dành cho Admin) ---
-app.post('/api/files', (req, res) => {
-    const { title, category, desc } = req.body;
-    const newFile = { id: files.length + 1, title, category, desc };
-    files.push(newFile);
-    res.json({ message: 'Thêm file thành công!', file: newFile });
+app.post('/api/admin/add-file', (req, res) => {
+    try {
+        const { title, imageUrl, link } = req.body;
+        if (!title || !link) return res.status(400).json({ error: 'Thiếu tên hoặc link file' });
+        
+        const newFile = { 
+            id: files.length + 1, 
+            title: title, 
+            imageUrl: imageUrl || 'https://i.ibb.co/680hYh2/freefire.jpg', 
+            link: link 
+        };
+        files.push(newFile);
+        res.json({ message: 'Thêm file thành công!', file: newFile });
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi Server' });
+    }
+});
+
+// Lấy danh sách user cho Admin
+app.get('/api/admin/users', (req, res) => {
+    res.json(users);
 });
 
 // Khởi động Server
 app.listen(PORT, () => {
-    console.log(`🚀 Backend SAMM X MODZ đang chạy tại port ${PORT}`);
+    console.log(`🚀 Backend đang chạy trên port ${PORT}`);
 });

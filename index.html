@@ -66,13 +66,12 @@
         h2 { font-family: 'Orbitron'; font-size: 24px; margin-top: 60px; margin-bottom: 30px; display: flex; align-items: center; }
         h2::before { content: ''; display: inline-block; width: 8px; height: 30px; background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); }
 
-        /* --- CẬP NHẬT: KHUNG ẢNH TO HƠN --- */
+        /* KHUNG ẢNH TO */
         .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
         .file-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; text-align: center; backdrop-filter: blur(15px); transition: 0.5s; opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s forwards; overflow: hidden; }
         .file-card:hover { transform: translateY(-15px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
         
-        /* Ảnh to hơn: Chiều cao tăng từ 200px lên 280px */
-        .img-wrapper { width: 100%; height: 280px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; position: relative; }
+        .img-wrapper { width: 100%; height: 280px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; position: relative; cursor: zoom-in; }
         .file-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .file-card:hover .file-img { transform: scale(1.1); }
         
@@ -80,7 +79,7 @@
         .file-card h3 { font-family: 'Orbitron'; font-size: 22px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
         .file-card p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
         .download-count { display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold; }
-        .btn-download { display: inline-block; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 900; transition: 0.4s; }
+        .btn-download { display: inline-block; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 900; transition: 0.4s; cursor: pointer; }
         .btn-download:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
 
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--glass-bg); border: 1px dashed var(--primary); border-radius: 20px; color: var(--primary); font-family: 'Orbitron'; }
@@ -95,6 +94,15 @@
         .info-panel p { margin-bottom: 15px; font-size: 16px; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
         .info-panel strong { color: var(--primary); font-family: 'Orbitron'; }
 
+        /* POPUP XEM ẢNH TO */
+        .image-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .image-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 30px var(--primary); }
+        .close-image { position: absolute; top: 20px; right: 30px; font-size: 40px; color: #fff; cursor: pointer; }
+
         /* Chat Bot */
         .chat-bot-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
         .chat-icon { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); width: 65px; height: 65px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); font-size: 30px; transition: 0.4s; }
@@ -102,9 +110,9 @@
         .chat-window { display: none; position: absolute; bottom: 85px; right: 0; width: 350px; background: rgba(5, 5, 10, 0.95); border: 1px solid var(--primary); border-radius: 20px; overflow: hidden; }
         .chat-header { background: var(--primary); color: #000; padding: 15px; font-weight: 900; font-family: 'Orbitron'; text-align: center; }
         .chat-body { height: 300px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .chat-msg { padding: 12px 16px; border-radius: 15px; font-size: 14px; max-width: 85%; }
-        .chat-msg.bot { background: rgba(0, 255, 204, 0.1); color: var(--primary); border: 1px solid var(--primary); align-self: flex-start; }
-        .chat-msg.user { align-self: flex-end; background: rgba(255, 255, 255, 0.1); }
+        .chat-msg { padding: 12px 16px; border-radius: 15px; font-size: 14px; max-width: 85%; line-height: 1.4; }
+        .chat-msg.bot { background: rgba(0, 255, 204, 0.1); color: var(--primary); border: 1px solid var(--primary); align-self: flex-start; border-bottom-left-radius: 0;}
+        .chat-msg.user { align-self: flex-end; background: rgba(255, 255, 255, 0.1); border-bottom-right-radius: 0;}
         .chat-input-area { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
         .chat-input-area input { flex: 1; padding: 15px; border: none; background: transparent; color: white; outline: none; }
         .chat-input-area button { background: var(--primary); color: #000; border: none; padding: 0 20px; cursor: pointer; font-weight: 900; }
@@ -117,6 +125,12 @@
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
+
+    <!-- POPUP XEM ẢNH -->
+    <div class="image-modal" id="imageModal" onclick="closeImage()">
+        <span class="close-image">&times;</span>
+        <img id="modalImage" src="" alt="Zoom Image">
+    </div>
 
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="authScreen">
@@ -163,15 +177,16 @@
             </div>
         </div>
 
+        <!-- CHAT BOT -->
         <div class="chat-bot-container">
             <div class="chat-icon" onclick="toggleChat()">🤖</div>
             <div class="chat-window" id="chatWindow">
-                <div class="chat-header">BOT SAMM</div>
+                <div class="chat-header">BOT SAMM AI</div>
                 <div class="chat-body" id="chatBody">
-                    <div class="chat-msg bot">Gõ <b>/start</b> để xem thông tin.</div>
+                    <div class="chat-msg bot">Xin chào! Mình là Bot tự động của Shop. Bạn cần tư vấn gì cứ nhắn nhé!</div>
                 </div>
                 <div class="chat-input-area">
-                    <input type="text" id="chatInput" placeholder="Nhập..." onkeypress="handleChat(event)">
+                    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="handleChat(event)">
                     <button onclick="sendChat()">Gửi</button>
                 </div>
             </div>
@@ -179,8 +194,9 @@
     </div>
 
     <script>
-        const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK RENDER
+        const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK RENDER CỦA BẠN
         let isLoginMode = true;
+        let currentUser = null;
 
         function switchAuthTab(mode) {
             isLoginMode = (mode === 'login');
@@ -240,6 +256,7 @@
         }
 
         function showMainApp(username) {
+            currentUser = username;
             const authScreen = document.getElementById('authScreen');
             authScreen.style.opacity = '0';
             setTimeout(() => { authScreen.style.display = 'none'; }, 500);
@@ -249,8 +266,6 @@
             setTimeout(() => { mainApp.style.opacity = '1'; }, 100);
 
             document.getElementById('displayUsername').innerText = username;
-            
-            // Lưu trạng thái đăng nhập vào trình duyệt (để F5 không mất)
             localStorage.setItem('samxmodz_user', username);
 
             autoSyncFiles();
@@ -258,12 +273,20 @@
         }
 
         function logoutUser() {
-            localStorage.removeItem('samxmodz_user'); // Xóa trạng thái
+            localStorage.removeItem('samxmodz_user'); 
             location.reload(); 
         }
 
-        // --- CƠ CHẾ CHỐNG MẤT FILE (DÙNG LOCALSTORAGE) ---
-        // Nếu Server bị reset (mất file), nó sẽ lấy lại file đã lưu trong máy bạn
+        // HIỂN THỊ ẢNH TO
+        function openImage(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+        function closeImage() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // LOAD FILE VÀ HIỂN THỊ
         let lastFilesJson = "";
         async function autoSyncFiles() {
             try {
@@ -271,14 +294,10 @@
                 const files = await response.json();
                 const filesJson = JSON.stringify(files);
                 
-                // Nếu server trả về mảng rỗng (do bị reset) nhưng trong máy có lưu file cũ
                 if (files.length === 0 && localStorage.getItem('samxmodz_files')) {
                     const cachedFiles = JSON.parse(localStorage.getItem('samxmodz_files'));
-                    if (cachedFiles.length > 0) {
-                        files = cachedFiles; // Hiển thị tạm file cũ
-                    }
+                    if (cachedFiles.length > 0) files = cachedFiles;
                 } else if (files.length > 0) {
-                    // Nếu server có file mới, cập nhật lại vào máy
                     localStorage.setItem('samxmodz_files', JSON.stringify(files));
                 }
 
@@ -295,16 +314,17 @@
 
                     files.forEach((file, index) => {
                         const downloads = file.downloads || 0;
+                        // Nút Tải xuống được xử lý qua sự kiện onclick, không dùng href trực tiếp để tránh bị chặn
                         container.innerHTML += `
                             <div class="file-card" style="--i: ${index}">
-                                <div class="img-wrapper">
+                                <div class="img-wrapper" onclick="openImage('${file.imageUrl}')">
                                     <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'">
                                 </div>
                                 <div class="file-info">
                                     <h3>${file.title}</h3>
                                     <p>Cập nhật bởi SAMM X MODZ</p>
                                     <div class="download-count">🔥 Lượt tải: <span id="dl-count-${file.id}">${downloads}</span></div><br>
-                                    <a href="${file.link}" target="_blank" class="btn-download" onclick="handleDownload(event, '${file.id}', '${file.link}')">TẢI XUỐNG</a>
+                                    <button class="btn-download" onclick="downloadFile('${file.id}', '${file.link}')">TẢI XUỐNG</button>
                                 </div>
                             </div>
                         `;
@@ -313,23 +333,29 @@
             } catch(e) { }
         }
 
-        // Khôi phục đăng nhập nếu đã đăng nhập trước đó
+        // HÀM TẢI XUỐNG (Sửa lỗi không bấm được)
+        async function downloadFile(fileId, link) {
+            if(!currentUser) {
+                alert('Vui lòng đăng nhập để tải!');
+                return;
+            }
+            try {
+                // Tăng lượt tải trên Server
+                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
+                const countSpan = document.getElementById('dl-count-' + fileId);
+                if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
+            } catch(e) { console.log("Lỗi đếm view"); }
+            
+            // Mở link tải trong tab mới
+            window.open(link, '_blank');
+        }
+
         window.onload = () => {
             const savedUser = localStorage.getItem('samxmodz_user');
             if (savedUser) {
                 showMainApp(savedUser);
             }
         };
-
-        async function handleDownload(e, fileId, link) {
-            e.preventDefault(); 
-            try {
-                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
-                const countSpan = document.getElementById('dl-count-' + fileId);
-                if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
-            } catch(e) { }
-            window.open(link, '_blank'); 
-        }
 
         document.body.addEventListener('click', function() {
             var video = document.getElementById('bg-video');
@@ -339,18 +365,51 @@
             }
         });
 
-        function toggleChat() { var chat = document.getElementById('chatWindow'); chat.style.display = chat.style.display === 'block' ? 'none' : 'block'; }
-        function handleChat(e) { if (e.key === 'Enter') sendChat(); }
+        // ==========================================
+        // BOT TỰ ĐỘNG TRẢ LỜI THÔNG MINH
+        // ==========================================
+        function toggleChat() { 
+            var chat = document.getElementById('chatWindow'); 
+            chat.style.display = chat.style.display === 'block' ? 'none' : 'block'; 
+        }
+        
+        function handleChat(e) { 
+            if (e.key === 'Enter') sendChat(); 
+        }
+
         function sendChat() {
-            var msg = document.getElementById('chatInput').value.trim(); if(!msg) return;
+            var input = document.getElementById('chatInput');
+            var msg = input.value.trim().toLowerCase(); 
+            if(!msg) return;
+
             var body = document.getElementById('chatBody');
-            body.innerHTML += `<div class="chat-msg user">${msg}</div>`;
-            document.getElementById('chatInput').value = '';
+            // Hiển thị tin nhắn người dùng
+            body.innerHTML += `<div class="chat-msg user">${input.value}</div>`;
+            input.value = '';
+
+            // Bot suy nghĩ và trả lời
             setTimeout(() => {
-                if (msg.toLowerCase() === '/start') body.innerHTML += `<div class="chat-msg bot"><b>SHOP SAMM X MODZ</b><br>- ZALO: 0355757211</div>`;
-                else body.innerHTML += `<div class="chat-msg bot">Gõ /start nhé!</div>`;
+                let reply = "";
+                if (msg.includes('/start') || msg.includes('chào') || msg.includes('hello') || msg.includes('hi')) {
+                    reply = `<b>THÔNG TIN SHOP SAMM X MODZ</b><br><br>
+                             - Chuyên cung cấp File 3105, Mod Game, Hack FF.<br>
+                             - Hỗ trợ: <b>ZALO 0355757211</b><br>
+                             - Tham gia Box để nhận file mới nhất!`;
+                } else if (msg.includes('giá') || msg.includes('bao nhiêu') || msg.includes('tiền')) {
+                    reply = "Shop có nhiều gói từ Miễn phí đến VIP. Bạn vui lòng liên hệ ZALO <b>0355757211</b> để được báo giá chi tiết nhé!";
+                } else if (msg.includes('zalo') || msg.includes('liên hệ') || msg.includes('sđt')) {
+                    reply = "Số Zalo hỗ trợ của Shop là: <b>0355757211</b>. Bạn nhắn tin trực tiếp qua Zalo để được Admin hỗ trợ nhanh nhất!";
+                } else if (msg.includes('tải') || msg.includes('file') || msg.includes('game')) {
+                    reply = "Bạn hãy cuộn lên mục <b>KHO TẢI GAME</b> để xem các file mới nhất. Nếu chưa thấy file, vui lòng chờ Admin cập nhật thêm nhé!";
+                } else if (msg.includes('cảm ơn') || msg.includes('thank')) {
+                    reply = "Không có gì! Chúc bạn chơi game vui vẻ. Cần gì cứ nhắn mình nhé!";
+                } else {
+                    reply = "Mình là Bot tự động nên chưa hiểu ý này lắm. Bạn có thể hỏi về <b>Giá cả</b>, <b>Liên hệ</b>, hoặc <b>Cách tải file</b> nhé!";
+                }
+
+                body.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
                 body.scrollTop = body.scrollHeight;
-            }, 500);
+            }, 600);
         }
     </script>
 </body>

@@ -31,9 +31,7 @@
             background: linear-gradient(to bottom, rgba(3,3,5,0.2), rgba(3,3,5,0.7)); z-index: -1; 
         }
 
-        /* =========================================
-           MÀN HÌNH ĐĂNG NHẬP (CHẶN TOÀN BỘ WEB)
-           ========================================= */
+        /* MÀN HÌNH ĐĂNG NHẬP */
         #authScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(10px);
@@ -46,38 +44,19 @@
             width: 90%; max-width: 400px; text-align: center;
             box-shadow: 0 0 50px rgba(0, 255, 204, 0.2);
         }
-        .auth-box .logo { 
-            font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: var(--primary);
-            text-shadow: 0 0 15px var(--primary); margin-bottom: 20px; letter-spacing: 2px;
-        }
+        .auth-box .logo { font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px var(--primary); margin-bottom: 20px; letter-spacing: 2px; }
         .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #333; }
         .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; color: #666; transition: 0.3s; }
         .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-        
-        .auth-box input { 
-            width: 100%; padding: 15px; margin: 10px 0; background: #000; 
-            border: 1px solid #333; color: white; border-radius: 8px; outline: none; 
-        }
+        .auth-box input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
         .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0,255,204,0.2); }
-        .auth-box button { 
-            width: 100%; padding: 15px; background: var(--primary); border: none; 
-            color: #000; font-weight: 900; border-radius: 8px; cursor: pointer; 
-            margin-top: 20px; font-family: 'Orbitron'; transition: 0.3s; 
-        }
+        .auth-box button { width: 100%; padding: 15px; background: var(--primary); border: none; color: #000; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 20px; font-family: 'Orbitron'; transition: 0.3s; }
         .auth-box button:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
         .auth-error { color: #ff4444; font-size: 14px; margin-top: 10px; display: none; }
 
-        /* =========================================
-           MÀN HÌNH CHÍNH (APP) - ẨN BAN ĐẦU
-           ========================================= */
+        /* MÀN HÌNH CHÍNH */
         #mainApp { display: none; opacity: 0; transition: opacity 0.5s ease; }
-        
-        header {
-            background: rgba(3, 3, 5, 0.7); backdrop-filter: blur(15px); padding: 15px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 5px 30px rgba(0, 255, 204, 0.15);
-        }
+        header { background: rgba(3, 3, 5, 0.7); backdrop-filter: blur(15px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 5px 30px rgba(0, 255, 204, 0.15); }
         .logo-header { font-family: 'Orbitron'; font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #fff, var(--primary), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 8px var(--primary)); }
         .auth-buttons { display: flex; gap: 15px; }
         .auth-buttons button { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px 20px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron'; font-weight: 700; transition: 0.4s; }
@@ -87,14 +66,18 @@
         h2 { font-family: 'Orbitron'; font-size: 24px; margin-top: 60px; margin-bottom: 30px; display: flex; align-items: center; }
         h2::before { content: ''; display: inline-block; width: 8px; height: 30px; background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); }
 
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
-        .file-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; text-align: center; backdrop-filter: blur(15px); transition: 0.5s; opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s forwards; }
-        .file-card:hover { transform: translateY(-15px) scale(1.03); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
-        .img-wrapper { width: 100%; height: 200px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; }
+        /* --- CẬP NHẬT: KHUNG ẢNH TO HƠN --- */
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+        .file-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; text-align: center; backdrop-filter: blur(15px); transition: 0.5s; opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s forwards; overflow: hidden; }
+        .file-card:hover { transform: translateY(-15px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
+        
+        /* Ảnh to hơn: Chiều cao tăng từ 200px lên 280px */
+        .img-wrapper { width: 100%; height: 280px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; position: relative; }
         .file-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .file-card:hover .file-img { transform: scale(1.1); }
+        
         .file-info { padding: 25px; }
-        .file-card h3 { font-family: 'Orbitron'; font-size: 20px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
+        .file-card h3 { font-family: 'Orbitron'; font-size: 22px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
         .file-card p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
         .download-count { display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold; }
         .btn-download { display: inline-block; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 900; transition: 0.4s; }
@@ -130,35 +113,27 @@
     </style>
 </head>
 <body>
-    <!-- Video nền -->
     <video autoplay loop muted playsinline id="bg-video">
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
 
-    <!-- =========================================
-         MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ
-         ========================================= -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="authScreen">
         <div class="auth-box">
             <div class="logo">SAMM X MODZ</div>
-            
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">ĐĂNG NHẬP</div>
                 <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">ĐĂNG KÝ</div>
             </div>
-
             <input type="text" id="username" placeholder="Tài khoản">
             <input type="password" id="password" placeholder="Mật khẩu">
             <div class="auth-error" id="authError">Lỗi kết nối!</div>
-            
             <button onclick="submitAuth()" id="authBtn">VÀO SHOP NGAY</button>
         </div>
     </div>
 
-    <!-- =========================================
-         MÀN HÌNH CHÍNH (BỊ ẨN CHO ĐẾN KHI ĐĂNG NHẬP)
-         ========================================= -->
+    <!-- MÀN HÌNH CHÍNH -->
     <div id="mainApp">
         <header>
             <div class="logo-header">SAMM X MODZ</div>
@@ -204,12 +179,9 @@
     </div>
 
     <script>
-        // SỬA LINK RENDER CỦA BẠN VÀO ĐÂY
-        const API_URL = 'https://samxmodz-api.onrender.com'; 
-        
-        let isLoginMode = true; // Mặc định là Đăng nhập
+        const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK RENDER
+        let isLoginMode = true;
 
-        // Chuyển đổi Tab Đăng nhập / Đăng ký
         function switchAuthTab(mode) {
             isLoginMode = (mode === 'login');
             document.getElementById('tabLogin').classList.toggle('active', isLoginMode);
@@ -218,7 +190,6 @@
             document.getElementById('authError').style.display = 'none';
         }
 
-        // Xử lý Đăng nhập / Đăng ký
         async function submitAuth() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -247,10 +218,8 @@
                 
                 if (res.ok) {
                     if (isLoginMode) {
-                        // Đăng nhập thành công -> Mở khóa màn hình chính
                         showMainApp(username);
                     } else {
-                        // Đăng ký thành công -> Tự động chuyển sang tab Đăng nhập
                         alert('Đăng ký thành công! Vui lòng đăng nhập.');
                         switchAuthTab('login');
                         btn.innerText = "VÀO SHOP NGAY";
@@ -263,40 +232,38 @@
                     btn.disabled = false;
                 }
             } catch (error) { 
-                errorDiv.innerText = 'Server đang khởi động. Vui lòng đợi 30 giây và thử lại!';
+                errorDiv.innerText = 'Server đang khởi động. Vui lòng đợi 30s và thử lại!';
                 errorDiv.style.display = 'block';
                 btn.innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
                 btn.disabled = false;
             }
         }
 
-        // Hàm mở khóa màn hình chính
         function showMainApp(username) {
-            // 1. Ẩn màn hình đăng nhập
             const authScreen = document.getElementById('authScreen');
             authScreen.style.opacity = '0';
             setTimeout(() => { authScreen.style.display = 'none'; }, 500);
 
-            // 2. Hiện màn hình chính
             const mainApp = document.getElementById('mainApp');
             mainApp.style.display = 'block';
             setTimeout(() => { mainApp.style.opacity = '1'; }, 100);
 
-            // 3. Cập nhật thông tin user
             document.getElementById('displayUsername').innerText = username;
+            
+            // Lưu trạng thái đăng nhập vào trình duyệt (để F5 không mất)
+            localStorage.setItem('samxmodz_user', username);
 
-            // 4. Bắt đầu tải file
             autoSyncFiles();
-            setInterval(autoSyncFiles, 3000); // Tự động cập nhật
+            setInterval(autoSyncFiles, 3000); 
         }
 
         function logoutUser() {
-            location.reload(); // Tải lại trang để quay về màn hình đăng nhập
+            localStorage.removeItem('samxmodz_user'); // Xóa trạng thái
+            location.reload(); 
         }
 
-        // ==========================================
-        // CÁC HÀM XỬ LÝ KHO FILE
-        // ==========================================
+        // --- CƠ CHẾ CHỐNG MẤT FILE (DÙNG LOCALSTORAGE) ---
+        // Nếu Server bị reset (mất file), nó sẽ lấy lại file đã lưu trong máy bạn
         let lastFilesJson = "";
         async function autoSyncFiles() {
             try {
@@ -304,13 +271,25 @@
                 const files = await response.json();
                 const filesJson = JSON.stringify(files);
                 
-                if(filesJson !== lastFilesJson) {
-                    lastFilesJson = filesJson;
+                // Nếu server trả về mảng rỗng (do bị reset) nhưng trong máy có lưu file cũ
+                if (files.length === 0 && localStorage.getItem('samxmodz_files')) {
+                    const cachedFiles = JSON.parse(localStorage.getItem('samxmodz_files'));
+                    if (cachedFiles.length > 0) {
+                        files = cachedFiles; // Hiển thị tạm file cũ
+                    }
+                } else if (files.length > 0) {
+                    // Nếu server có file mới, cập nhật lại vào máy
+                    localStorage.setItem('samxmodz_files', JSON.stringify(files));
+                }
+
+                const newJson = JSON.stringify(files);
+                if(newJson !== lastFilesJson) {
+                    lastFilesJson = newJson;
                     const container = document.getElementById('fileContainer');
                     container.innerHTML = ''; 
 
                     if(files.length === 0) {
-                        container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng chờ SAMM X MODZ cập nhật file mới!</span></div>`;
+                        container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff;">Admin chưa cập nhật file mới!</span></div>`;
                         return;
                     }
 
@@ -334,19 +313,24 @@
             } catch(e) { }
         }
 
+        // Khôi phục đăng nhập nếu đã đăng nhập trước đó
+        window.onload = () => {
+            const savedUser = localStorage.getItem('samxmodz_user');
+            if (savedUser) {
+                showMainApp(savedUser);
+            }
+        };
+
         async function handleDownload(e, fileId, link) {
-            e.preventDefault(); // Ngăn chặn mở link ngay lập tức để đếm view trước
+            e.preventDefault(); 
             try {
                 await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
                 const countSpan = document.getElementById('dl-count-' + fileId);
                 if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
             } catch(e) { }
-            window.open(link, '_blank'); // Mở link tải sau khi đếm
+            window.open(link, '_blank'); 
         }
 
-        // ==========================================
-        // CHAT BOT & VIDEO
-        // ==========================================
         document.body.addEventListener('click', function() {
             var video = document.getElementById('bg-video');
             if(video && video.muted) {

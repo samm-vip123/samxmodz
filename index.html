@@ -3,146 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMM X MODZ - Shop</title>
+    <title>SAMM X MODZ - Premium Shop</title>
+    <!-- Nhúng font chữ hiện đại -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        /* CSS Giao diện */
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url('https://files.catbox.moe/yd6xhn.mp4') no-repeat center center fixed; /* Nhạc nền video */
-            background-size: cover;
-            color: white;
-            background-color: #111;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+        :root {
+            --primary: #00ffcc;
+            --primary-dark: #00b38f;
+            --bg-dark: #0a0a0a;
+            --glass-bg: rgba(20, 20, 20, 0.7);
+            --glass-border: rgba(0, 255, 204, 0.3);
         }
 
-        /* Lớp phủ tối để dễ đọc chữ */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #fff;
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Video nền */
+        #bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -2;
+        }
+        
+        /* Lớp phủ tối & hiệu ứng mờ */
         .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,20,15,0.7) 100%);
+            backdrop-filter: blur(3px);
             z-index: -1;
         }
 
-        /* Header */
+        /* Thanh điều hướng (Header) */
         header {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
             padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #00ffcc;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 255, 204, 0.1);
         }
-        .logo { font-size: 24px; font-weight: bold; color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px; font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+            letter-spacing: 2px;
+        }
+
         .auth-buttons button {
-            background: #00ffcc; color: #000; border: none; padding: 8px 15px; margin-left: 10px;
-            border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 18px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 0 5px rgba(0, 255, 204, 0.2);
         }
-        .auth-buttons button:hover { background: #fff; box-shadow: 0 0 15px #00ffcc; }
 
-        /* Container chính */
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
-        
-        h2 { border-left: 4px solid #00ffcc; padding-left: 10px; margin-top: 30px; }
+        .auth-buttons button:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px var(--primary);
+            transform: translateY(-2px);
+        }
 
-        /* Khu vực file */
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px; }
+        /* Khu vực nội dung */
+        .container {
+            padding: 30px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            color: #fff;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 5px; height: 20px;
+            background: var(--primary);
+            margin-right: 15px;
+            box-shadow: 0 0 10px var(--primary);
+            border-radius: 2px;
+        }
+
+        /* Lưới File */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
         .file-card {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid #00ffcc; border-radius: 10px;
-            padding: 20px; text-align: center; transition: 0.3s; backdrop-filter: blur(5px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out forwards;
         }
-        .file-card:hover { transform: translateY(-5px); box-shadow: 0 0 20px #00ffcc; }
-        .file-card a { display: inline-block; margin-top: 10px; background: #00ffcc; color: #000; padding: 5px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; }
 
-        /* Khu vực Box Zalo */
-        .box-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        .file-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            transform: scaleX(0); transition: transform 0.4s ease;
+        }
+
+        .file-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+            border-color: var(--primary);
+        }
+
+        .file-card:hover::before { transform: scaleX(1); }
+
+        .file-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px; color: var(--primary); margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+        }
+
+        .file-card p { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+
+        .file-card a {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+            color: #000; padding: 10px 30px; border-radius: 25px;
+            text-decoration: none; font-weight: 700; font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+        }
+
+        .file-card a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.6);
+        }
+
+        /* Box Zalo */
+        .box-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;
+        }
+
         .zalo-box {
-            background: #0068ff; color: white; padding: 15px 25px; border-radius: 30px;
-            text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: bold;
-            transition: 0.3s; box-shadow: 0 4px 10px rgba(0,104,255,0.5);
+            background: rgba(0, 104, 255, 0.1);
+            border: 1px solid rgba(0, 104, 255, 0.5);
+            color: #fff; padding: 15px 20px; border-radius: 10px;
+            text-decoration: none; display: flex; align-items: center; gap: 12px; font-weight: 500;
+            transition: all 0.3s ease; backdrop-filter: blur(5px);
         }
-        .zalo-box:hover { background: #0050c8; transform: scale(1.05); }
-        .zalo-icon { width: 24px; height: 24px; background: white; border-radius: 50%; color: #0068ff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; }
 
-        /* Top Đơn Hàng */
-        .top-list { background: rgba(0,0,0,0.5); border-radius: 10px; padding: 15px; margin-top: 15px; }
-        .top-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .zalo-box:hover {
+            background: rgba(0, 104, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 104, 255, 0.4);
+        }
+
+        .zalo-icon {
+            width: 30px; height: 30px; background: #fff; border-radius: 50%;
+            color: #0068ff; display: flex; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 16px;
+        }
+
+        .vip {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.6);
+        }
+        .vip .zalo-icon { color: #ff9800; }
+        .vip:hover {
+            background: rgba(255, 152, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        /* Top List */
+        .top-list {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .top-item {
+            display: flex; justify-content: space-between; padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 15px; transition: color 0.3s;
+        }
+        .top-item:hover { color: var(--primary); }
         .top-item:last-child { border-bottom: none; }
+        .top-item span:last-child { color: var(--primary); font-weight: bold; }
 
-        /* Bot Chat */
-        .chat-bot-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        /* Chat Bot */
+        .chat-bot-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
+        
         .chat-icon {
-            background: #00ffcc; width: 60px; height: 60px; border-radius: 50%; display: flex;
-            justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,204,0.5);
-            font-size: 30px;
+            background: var(--glass-bg);
+            border: 2px solid var(--primary);
+            width: 65px; height: 65px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); font-size: 32px;
+            transition: all 0.3s ease;
         }
+        
+        .chat-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 30px var(--primary);
+        }
+
         .chat-window {
-            display: none; position: absolute; bottom: 80px; right: 0; width: 300px;
-            background: #222; border: 1px solid #00ffcc; border-radius: 10px; overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: none; position: absolute; bottom: 85px; right: 0; width: 340px;
+            background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 15px;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            animation: popIn 0.3s ease-out;
         }
-        .chat-header { background: #00ffcc; color: #000; padding: 10px; font-weight: bold; text-align: center; }
-        .chat-body { height: 250px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { background: #333; padding: 8px; border-radius: 5px; font-size: 14px; }
-        .chat-msg.bot { background: #004d40; color: #00ffcc; border-left: 3px solid #00ffcc; }
-        .chat-input-area { display: flex; border-top: 1px solid #444; }
-        .chat-input-area input { flex: 1; padding: 10px; border: none; background: #111; color: white; outline: none; }
-        .chat-input-area button { background: #00ffcc; color: #000; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
 
-        /* Form Đăng Nhập / Đăng Ký (Modal) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: #222; padding: 30px; border-radius: 10px; border: 1px solid #00ffcc; width: 300px; text-align: center; }
-        .modal-content h3 { color: #00ffcc; margin-top: 0; }
-        .modal-content input { width: 100%; padding: 10px; margin: 10px 0; background: #111; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
-        .modal-content button { width: 100%; padding: 10px; background: #00ffcc; border: none; color: #000; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-        .close-btn { color: red; float: right; cursor: pointer; font-weight: bold; }
+        .chat-header {
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            color: #000; padding: 15px; font-weight: 700; font-family: 'Orbitron', sans-serif;
+            text-align: center; letter-spacing: 1px;
+        }
 
-        /* Audio Player Ẩn */
-        audio { display: none; }
+        .chat-body {
+            height: 300px; padding: 15px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+
+        .chat-msg {
+            background: rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 15px;
+            font-size: 14px; max-width: 85%; line-height: 1.4;
+        }
+        
+        .chat-msg.bot {
+            background: rgba(0, 255, 204, 0.1); color: var(--primary);
+            border-left: 3px solid var(--primary); align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        
+        .chat-msg.user {
+            align-self: flex-end; background: rgba(255, 255, 255, 0.15);
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-input-area {
+            display: flex; border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .chat-input-area input {
+            flex: 1; padding: 15px; border: none; background: transparent;
+            color: white; outline: none; font-size: 14px;
+        }
+        
+        .chat-input-area button {
+            background: var(--primary); color: #000; border: none;
+            padding: 0 20px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .chat-input-area button:hover { background: #fff; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 2000; }
+        
+        .modal-content {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            padding: 35px; border-radius: 20px; width: 90%; max-width: 400px;
+            text-align: center; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+        
+        .modal-content h3 { color: var(--primary); font-family: 'Orbitron', sans-serif; margin-bottom: 25px; letter-spacing: 1px; }
+        
+        .modal-content input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 8px; font-size: 15px; transition: 0.3s;
+        }
+        
+        .modal-content input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        
+        .modal-content button {
+            width: 100%; padding: 15px; background: var(--primary); border: none;
+            color: #000; font-weight: bold; border-radius: 8px; cursor: pointer;
+            margin-top: 20px; font-size: 16px; transition: 0.3s;
+        }
+        .modal-content button:hover { background: #fff; box-shadow: 0 0 15px var(--primary); }
+        
+        .close-btn { position: absolute; top: 15px; right: 20px; color: #ff4444; cursor: pointer; font-weight: bold; font-size: 24px; transition: 0.3s; }
+        .close-btn:hover { transform: scale(1.2); }
+
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
 
-    <!-- Nhạc nền video -->
-    <video autoplay loop muted id="bg-video" style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2;">
+    <!-- Video nền -->
+    <video autoplay loop playsinline id="bg-video">
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
-    <!-- Nhạc nền MP3 (Tự động phát và lặp lại) -->
-    <audio id="bg-music" loop autoplay>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    <div class="overlay"></div>
 
     <header>
         <div class="logo">SAMM X MODZ</div>
         <div class="auth-buttons">
-            <button onclick="openModal('login')">Đăng Nhập</button>
-            <button onclick="openModal('register')">Đăng Ký</button>
+            <button onclick="openModal('Đăng Nhập')">Đăng Nhập</button>
+            <button onclick="openModal('Đăng Ký')">Đăng Ký</button>
         </div>
     </header>
 
     <div class="container">
         <h2>KHU VỰC FILE 3105</h2>
         <div class="file-grid">
-            <!-- File do Admin cập nhật sẽ hiển thị ở đây -->
             <div class="file-card">
                 <h3>AIM HACK FREE FIRE</h3>
                 <p>Phiên bản mới nhất - Cập nhật bởi ADMIN</p>
-                <a href="#" onclick="alert('Vui lòng đăng nhập để tải!')">TẢI XUỐNG</a>
+                <a href="#" onclick="checkLogin()">TẢI XUỐNG</a>
             </div>
             <div class="file-card">
                 <h3>AIM HACK LIÊN QUÂN</h3>
                 <p>Phiên bản mới nhất - Cập nhật bởi ADMIN</p>
-                <a href="#" onclick="alert('Vui lòng đăng nhập để tải!')">TẢI XUỐNG</a>
+                <a href="#" onclick="checkLogin()">TẢI XUỐNG</a>
             </div>
-            <!-- Thêm file khác tại đây -->
         </div>
 
         <h2>KHU VỰC BOX ZALO</h2>
         <div class="box-grid">
-            <!-- Chỉ hiển thị Icon Zalo và Tên Box, không hiển thị link -->
             <a href="https://zalo.me/g/wqnmgz1abybxpub2p9w9" target="_blank" class="zalo-box">
                 <div class="zalo-icon">Z</div> Box 1
             </a>
@@ -155,8 +380,8 @@
             <a href="https://zalo.me/g/pptuksfrskl7sotde7am" target="_blank" class="zalo-box">
                 <div class="zalo-icon">Z</div> Box 4
             </a>
-            <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="zalo-box" style="background: #ff9800; box-shadow: 0 4px 10px rgba(255,152,0,0.5);">
-                <div class="zalo-icon" style="color: #ff9800;">V</div> BOX VIP ADMIN
+            <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="zalo-box vip">
+                <div class="zalo-icon">V</div> BOX VIP
             </a>
         </div>
 
@@ -169,98 +394,88 @@
 
         <h2>THÔNG TIN TÀI KHOẢN</h2>
         <div class="top-list">
-            <p>Tên đăng nhập: Khách</p>
-            <p>Trạng thái: Chưa đăng nhập</p>
-            <p>Liên hệ hỗ trợ: <strong>ZALO 0355757211</strong></p>
+            <p style="margin-bottom: 10px;">Tên đăng nhập: <strong>Khách</strong></p>
+            <p style="margin-bottom: 10px;">Trạng thái: <strong>Chưa đăng nhập</strong></p>
+            <p>Liên hệ hỗ trợ: <strong style="color: var(--primary);">ZALO 0355757211</strong></p>
         </div>
     </div>
 
     <!-- Chat Bot -->
     <div class="chat-bot-container">
-        <div class="chat-icon" onclick="toggleChat()">💬</div>
+        <div class="chat-icon" onclick="toggleChat()">🤖</div>
         <div class="chat-window" id="chatWindow">
-            <div class="chat-header">BOT SAMM</div>
+            <div class="chat-header">BOT SAMM AI</div>
             <div class="chat-body" id="chatBody">
-                <div class="chat-msg bot">Chào bạn! Gõ /start để xem thông tin Shop.</div>
+                <div class="chat-msg bot">Xin chào! Gõ <b>/start</b> để xem thông tin Shop.</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Nhập lệnh..." onkeypress="handleChat(event)">
+                <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="handleChat(event)">
                 <button onclick="sendChat()">Gửi</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Đăng nhập/Đăng ký -->
+    <!-- Modal Auth -->
     <div class="modal" id="authModal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">X</span>
-            <h3 id="modalTitle">Đăng Nhập</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">ĐĂNG NHẬP</h3>
             <input type="text" id="username" placeholder="Tài khoản">
             <input type="password" id="password" placeholder="Mật khẩu">
-            <button onclick="submitAuth()">Xác Nhận</button>
+            <button onclick="submitAuth()">XÁC NHẬN</button>
         </div>
     </div>
 
     <script>
-        // Nhạc nền tự động phát khi click chuột lần đầu (do chính sách trình duyệt)
+        // Bật âm thanh video khi click lần đầu
         document.body.addEventListener('click', function() {
-            var audio = document.getElementById('bg-music');
-            if (audio.paused) {
-                audio.play().catch(e => console.log("Chờ tương tác để phát nhạc"));
-            }
+            var video = document.getElementById('bg-video');
+            video.muted = false;
+            video.play().catch(error => console.log("Lỗi phát video:", error));
         }, { once: true });
 
-        // Xử lý Chat Bot
+        // Chat Bot Logic
         function toggleChat() {
             var chat = document.getElementById('chatWindow');
             chat.style.display = chat.style.display === 'block' ? 'none' : 'block';
         }
-
-        function handleChat(e) {
-            if (e.key === 'Enter') sendChat();
-        }
-
+        
+        function handleChat(e) { if (e.key === 'Enter') sendChat(); }
+        
         function sendChat() {
             var input = document.getElementById('chatInput');
             var msg = input.value.trim();
-            if (msg === '') return;
-
+            if (!msg) return;
             var chatBody = document.getElementById('chatBody');
             
-            // Hiển thị tin nhắn người dùng
-            chatBody.innerHTML += `<div class="chat-msg" style="align-self: flex-end;">${msg}</div>`;
+            chatBody.innerHTML += `<div class="chat-msg user">${msg}</div>`;
             input.value = '';
-
-            // Xử lý Bot
+            
             setTimeout(() => {
                 if (msg.toLowerCase() === '/start') {
-                    chatBody.innerHTML += `
-                        <div class="chat-msg bot">
-                            <strong>THÔNG TIN SHOP SAMM X MODZ</strong><br>
-                            - Chuyên cung cấp File 3105, Aim Hack FF, LQ.<br>
-                            - Liên hệ: ZALO 0355757211<br>
-                            - Tham gia Box để nhận file mới nhất!
-                        </div>`;
+                    chatBody.innerHTML += `<div class="chat-msg bot"><b>THÔNG TIN SHOP SAMM X MODZ</b><br><br>- Chuyên cung cấp File 3105, Aim Hack FF, LQ.<br>- Liên hệ: ZALO 0355757211<br>- Tham gia Box để nhận file mới nhất!</div>`;
                 } else {
-                    chatBody.innerHTML += `<div class="chat-msg bot">Gõ /start để xem thông tin Shop nhé!</div>`;
+                    chatBody.innerHTML += `<div class="chat-msg bot">Vui lòng gõ /start để xem thông tin Shop nhé!</div>`;
                 }
                 chatBody.scrollTop = chatBody.scrollHeight;
-            }, 500);
+            }, 600);
         }
 
-        // Xử lý Đăng nhập/Đăng ký (Demo Frontend)
+        // Modal Logic
         function openModal(type) {
             document.getElementById('authModal').style.display = 'flex';
-            document.getElementById('modalTitle').innerText = type === 'login' ? 'Đăng Nhập' : 'Đăng Ký';
+            document.getElementById('modalTitle').innerText = type.toUpperCase();
         }
-
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
+        
+        function closeModal() { document.getElementById('authModal').style.display = 'none'; }
+        
         function submitAuth() {
-            alert('Chức năng Đăng nhập/Đăng ký cần kết nối Database (Backend). Bạn có thể dùng Firebase để làm việc này!');
+            alert('Chức năng Đăng nhập/Đăng ký cần Backend (Database). Đây là giao diện demo!');
             closeModal();
+        }
+        
+        function checkLogin() {
+            alert('Vui lòng Đăng nhập để tải file!');
         }
     </script>
 </body>

@@ -8,7 +8,7 @@
     <style>
         :root {
             --primary: #00ffcc; --primary-dark: #00b38f; --secondary: #ff0055;
-            --bg-dark: #030305; --glass-bg: rgba(10, 10, 15, 0.6); --glass-border: rgba(0, 255, 204, 0.3);
+            --bg-dark: #030305; --glass-bg: rgba(10, 10, 15, 0.75); --glass-border: rgba(0, 255, 204, 0.3);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -20,303 +20,224 @@
                 radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.05), transparent 25%);
         }
 
-        /* Video nền sáng hơn */
+        /* Video nền sáng bóng */
         #bg-video { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: -2; opacity: 0.85; pointer-events: none;
+            object-fit: cover; z-index: -2; opacity: 1; 
+            filter: brightness(1.2) contrast(1.1); pointer-events: none;
         }
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(to bottom, rgba(3,3,5,0.4), rgba(3,3,5,0.8)); z-index: -1; 
+            background: linear-gradient(to bottom, rgba(3,3,5,0.2), rgba(3,3,5,0.7)); z-index: -1; 
         }
 
-        /* Header */
+        /* =========================================
+           MÀN HÌNH ĐĂNG NHẬP (CHẶN TOÀN BỘ WEB)
+           ========================================= */
+        #authScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .auth-box {
+            background: linear-gradient(145deg, rgba(20,20,30,0.95), rgba(5,5,10,0.95));
+            border: 1px solid var(--primary); padding: 40px; border-radius: 20px;
+            width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.2);
+        }
+        .auth-box .logo { 
+            font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: var(--primary);
+            text-shadow: 0 0 15px var(--primary); margin-bottom: 20px; letter-spacing: 2px;
+        }
+        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #333; }
+        .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; color: #666; transition: 0.3s; }
+        .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        
+        .auth-box input { 
+            width: 100%; padding: 15px; margin: 10px 0; background: #000; 
+            border: 1px solid #333; color: white; border-radius: 8px; outline: none; 
+        }
+        .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0,255,204,0.2); }
+        .auth-box button { 
+            width: 100%; padding: 15px; background: var(--primary); border: none; 
+            color: #000; font-weight: 900; border-radius: 8px; cursor: pointer; 
+            margin-top: 20px; font-family: 'Orbitron'; transition: 0.3s; 
+        }
+        .auth-box button:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
+        .auth-error { color: #ff4444; font-size: 14px; margin-top: 10px; display: none; }
+
+        /* =========================================
+           MÀN HÌNH CHÍNH (APP) - ẨN BAN ĐẦU
+           ========================================= */
+        #mainApp { display: none; opacity: 0; transition: opacity 0.5s ease; }
+        
         header {
             background: rgba(3, 3, 5, 0.7); backdrop-filter: blur(15px); padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100;
             box-shadow: 0 5px 30px rgba(0, 255, 204, 0.15);
         }
-        .logo { 
-            font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900; 
-            background: linear-gradient(90deg, #fff, var(--primary), #fff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 8px var(--primary)); letter-spacing: 2px;
-        }
-        .auth-buttons { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .auth-buttons button {
-            background: transparent; color: var(--primary); border: 1px solid var(--primary);
-            padding: 8px 20px; border-radius: 5px; cursor: pointer;
-            font-family: 'Orbitron', sans-serif; font-weight: 700; transition: all 0.4s ease;
-        }
-        .auth-buttons button:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); transform: translateY(-2px); }
+        .logo-header { font-family: 'Orbitron'; font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #fff, var(--primary), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 8px var(--primary)); }
+        .auth-buttons { display: flex; gap: 15px; }
+        .auth-buttons button { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px 20px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron'; font-weight: 700; transition: 0.4s; }
+        .auth-buttons button:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
 
-        .container { padding: 40px 5%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
-        
-        h2 { 
-            font-family: 'Orbitron', sans-serif; font-size: 24px; margin-top: 60px; margin-bottom: 30px; 
-            display: flex; align-items: center; text-transform: uppercase; letter-spacing: 2px;
-        }
-        h2::before { 
-            content: ''; display: inline-block; width: 8px; height: 30px; 
-            background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); border-radius: 4px;
-        }
+        .container { padding: 40px 5%; max-width: 1400px; margin: 0 auto; }
+        h2 { font-family: 'Orbitron'; font-size: 24px; margin-top: 60px; margin-bottom: 30px; display: flex; align-items: center; }
+        h2::before { content: ''; display: inline-block; width: 8px; height: 30px; background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); }
 
-        /* File Grid */
         .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
-        .file-card {
-            background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
-            text-align: center; backdrop-filter: blur(15px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden; opacity: 0; transform: translateY(30px);
-            animation: fadeUp 0.8s forwards; animation-delay: calc(var(--i) * 0.15s);
-        }
-        .file-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(0, 255, 204, 0.1), transparent);
-            transform: translateX(-100%); transition: 0.5s;
-        }
+        .file-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; text-align: center; backdrop-filter: blur(15px); transition: 0.5s; opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s forwards; }
         .file-card:hover { transform: translateY(-15px) scale(1.03); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
-        .file-card:hover::before { transform: translateX(100%); }
-        
-        .img-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; }
+        .img-wrapper { width: 100%; height: 200px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; }
         .file-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .file-card:hover .file-img { transform: scale(1.1); }
         .file-info { padding: 25px; }
-        .file-card h3 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
+        .file-card h3 { font-family: 'Orbitron'; font-size: 20px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
         .file-card p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
-        
-        /* Lượt tải */
-        .download-count {
-            display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary);
-            padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold;
-        }
+        .download-count { display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold; }
+        .btn-download { display: inline-block; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 900; transition: 0.4s; }
+        .btn-download:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
 
-        .file-card a.btn-download {
-            display: inline-block; background: transparent; color: var(--primary); 
-            border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; 
-            text-decoration: none; font-weight: 900; font-size: 15px; transition: 0.4s; position: relative; overflow: hidden;
-        }
-        .file-card a.btn-download:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--glass-bg); border: 1px dashed var(--primary); border-radius: 20px; color: var(--primary); font-family: 'Orbitron'; }
 
-        /* Trạng thái trống */
-        .empty-state {
-            grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--glass-bg);
-            border: 1px dashed var(--primary); border-radius: 20px; color: var(--primary);
-            font-family: 'Orbitron'; font-size: 18px; letter-spacing: 1px;
-        }
-
-        /* Box Zalo */
         .box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-        .zalo-box {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff; padding: 20px; border-radius: 15px; text-decoration: none;
-            display: flex; align-items: center; gap: 15px; font-weight: 500; transition: 0.4s;
-        }
-        .zalo-box:hover { background: rgba(0, 255, 204, 0.15); transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,255,204,0.1); }
+        .zalo-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 20px; border-radius: 15px; text-decoration: none; display: flex; align-items: center; gap: 15px; transition: 0.4s; }
+        .zalo-box:hover { background: rgba(0, 255, 204, 0.15); transform: translateY(-5px); border-color: var(--primary); }
         .zalo-icon { width: 40px; height: 40px; background: #fff; border-radius: 50%; color: #0068ff; display: flex; justify-content: center; align-items: center; font-weight: 900; font-family: 'Orbitron'; font-size: 18px; }
-        .vip { border-color: #ff9800; background: rgba(255, 152, 0, 0.05); }
-        .vip .zalo-icon { color: #ff9800; }
-        .vip:hover { background: rgba(255, 152, 0, 0.15); box-shadow: 0 0 20px rgba(255, 152, 0, 0.3); border-color: #ff9800; }
+        .vip { border-color: #ff9800; background: rgba(255, 152, 0, 0.05); } .vip .zalo-icon { color: #ff9800; } .vip:hover { background: rgba(255, 152, 0, 0.15); border-color: #ff9800; box-shadow: 0 0 20px rgba(255, 152, 0, 0.3); }
 
-        /* Panel Thông tin */
         .glass-panel { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); }
-        .info-panel p { margin-bottom: 15px; font-size: 16px; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px;}
+        .info-panel p { margin-bottom: 15px; font-size: 16px; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
         .info-panel strong { color: var(--primary); font-family: 'Orbitron'; }
 
         /* Chat Bot */
         .chat-bot-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
         .chat-icon { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); width: 65px; height: 65px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); font-size: 30px; transition: 0.4s; }
-        .chat-icon:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 0 40px var(--primary); }
-        .chat-window { display: none; position: absolute; bottom: 85px; right: 0; width: 350px; background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--primary); border-radius: 20px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
+        .chat-icon:hover { transform: scale(1.1) rotate(15deg); }
+        .chat-window { display: none; position: absolute; bottom: 85px; right: 0; width: 350px; background: rgba(5, 5, 10, 0.95); border: 1px solid var(--primary); border-radius: 20px; overflow: hidden; }
         .chat-header { background: var(--primary); color: #000; padding: 15px; font-weight: 900; font-family: 'Orbitron'; text-align: center; }
         .chat-body { height: 300px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .chat-msg { padding: 12px 16px; border-radius: 15px; font-size: 14px; max-width: 85%; line-height: 1.4; }
-        .chat-msg.bot { background: rgba(0, 255, 204, 0.1); color: var(--primary); border: 1px solid var(--primary); align-self: flex-start; border-bottom-left-radius: 0; }
-        .chat-msg.user { align-self: flex-end; background: rgba(255, 255, 255, 0.1); border-bottom-right-radius: 0; }
+        .chat-msg { padding: 12px 16px; border-radius: 15px; font-size: 14px; max-width: 85%; }
+        .chat-msg.bot { background: rgba(0, 255, 204, 0.1); color: var(--primary); border: 1px solid var(--primary); align-self: flex-start; }
+        .chat-msg.user { align-self: flex-end; background: rgba(255, 255, 255, 0.1); }
         .chat-input-area { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
         .chat-input-area input { flex: 1; padding: 15px; border: none; background: transparent; color: white; outline: none; }
         .chat-input-area button { background: var(--primary); color: #000; border: none; padding: 0 20px; cursor: pointer; font-weight: 900; }
 
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: linear-gradient(145deg, rgba(20,20,30,0.95), rgba(5,5,10,0.95)); border: 1px solid var(--primary); padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 0 50px rgba(0, 255, 204, 0.2); }
-        .modal-content h3 { color: var(--primary); font-family: 'Orbitron'; margin-bottom: 30px; font-size: 22px; }
-        .modal-content input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: white; border-radius: 8px; outline: none; transition: 0.3s; }
-        .modal-content input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,255,204,0.2); }
-        .modal-content button { width: 100%; padding: 15px; background: var(--primary); border: none; color: #000; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 20px; font-family: 'Orbitron'; transition: 0.3s; }
-        .modal-content button:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
-        .close-btn { position: absolute; top: 15px; right: 20px; color: #fff; cursor: pointer; font-size: 24px; transition: 0.3s; }
-        .close-btn:hover { color: var(--secondary); transform: rotate(90deg); }
-
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
     </style>
 </head>
 <body>
+    <!-- Video nền -->
     <video autoplay loop muted playsinline id="bg-video">
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
 
-    <header>
-        <div class="logo">SAMM X MODZ</div>
-        <div class="auth-buttons" id="authButtons">
-            <button onclick="openModal('Đăng Nhập')">Đăng Nhập</button>
-            <button onclick="openModal('Đăng Ký')">Đăng Ký</button>
-        </div>
-    </header>
-
-    <div class="container">
-        <h2>KHO TẢI GAME</h2>
-        <div class="file-grid" id="fileContainer">
-            <!-- File load từ Backend tự động -->
-            <div class="empty-state">⏳ Đang tải dữ liệu từ hệ thống...</div>
-        </div>
-
-        <h2>KHU VỰC BOX ZALO</h2>
-        <div class="box-grid">
-            <a href="https://zalo.me/g/wqnmgz1abybxpub2p9w9" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 1</a>
-            <a href="https://zalo.me/g/pptuksfrskl7sotde7am" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 2</a>
-            <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="zalo-box vip"><div class="zalo-icon">V</div> BOX VIP SAMM X MODZ</a>
-        </div>
-
-        <h2>THÔNG TIN TÀI KHOẢN</h2>
-        <div class="glass-panel info-panel" id="accountInfo">
-            <p><span>Tên đăng nhập:</span> <strong id="displayUsername">Khách</strong></p>
-            <p><span>Trạng thái:</span> <strong id="displayStatus" style="color: #ff4444;">Chưa đăng nhập</strong></p>
-            <p style="border: none;"><span>Hỗ trợ:</span> <strong>ZALO 0355757211</strong></p>
-        </div>
-    </div>
-
-    <div class="chat-bot-container">
-        <div class="chat-icon" onclick="toggleChat()">🤖</div>
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">BOT SAMM</div>
-            <div class="chat-body" id="chatBody">
-                <div class="chat-msg bot">Gõ <b>/start</b> để xem thông tin.</div>
+    <!-- =========================================
+         MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ
+         ========================================= -->
+    <div id="authScreen">
+        <div class="auth-box">
+            <div class="logo">SAMM X MODZ</div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">ĐĂNG NHẬP</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">ĐĂNG KÝ</div>
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Nhập..." onkeypress="handleChat(event)">
-                <button onclick="sendChat()">Gửi</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3 id="modalTitle">ĐĂNG NHẬP</h3>
             <input type="text" id="username" placeholder="Tài khoản">
             <input type="password" id="password" placeholder="Mật khẩu">
-            <button onclick="submitAuth()" id="authBtn">XÁC NHẬN</button>
+            <div class="auth-error" id="authError">Lỗi kết nối!</div>
+            
+            <button onclick="submitAuth()" id="authBtn">VÀO SHOP NGAY</button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         MÀN HÌNH CHÍNH (BỊ ẨN CHO ĐẾN KHI ĐĂNG NHẬP)
+         ========================================= -->
+    <div id="mainApp">
+        <header>
+            <div class="logo-header">SAMM X MODZ</div>
+            <div class="auth-buttons">
+                <button onclick="logoutUser()" style="border-color: #ff4444; color: #ff4444;">Đăng Xuất</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <h2>KHO TẢI GAME</h2>
+            <div class="file-grid" id="fileContainer">
+                <div class="empty-state">⏳ Đang tải dữ liệu...</div>
+            </div>
+
+            <h2>KHU VỰC BOX ZALO</h2>
+            <div class="box-grid">
+                <a href="https://zalo.me/g/wqnmgz1abybxpub2p9w9" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 1</a>
+                <a href="https://zalo.me/g/pptuksfrskl7sotde7am" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 2</a>
+                <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="zalo-box vip"><div class="zalo-icon">V</div> BOX VIP SAMM X MODZ</a>
+            </div>
+
+            <h2>THÔNG TIN TÀI KHOẢN</h2>
+            <div class="glass-panel info-panel">
+                <p><span>Tên đăng nhập:</span> <strong id="displayUsername">...</strong></p>
+                <p><span>Trạng thái:</span> <strong style="color: var(--primary);">Đã đăng nhập</strong></p>
+                <p><span>Hỗ trợ:</span> <strong>ZALO 0355757211</strong></p>
+            </div>
+        </div>
+
+        <div class="chat-bot-container">
+            <div class="chat-icon" onclick="toggleChat()">🤖</div>
+            <div class="chat-window" id="chatWindow">
+                <div class="chat-header">BOT SAMM</div>
+                <div class="chat-body" id="chatBody">
+                    <div class="chat-msg bot">Gõ <b>/start</b> để xem thông tin.</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Nhập..." onkeypress="handleChat(event)">
+                    <button onclick="sendChat()">Gửi</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // SỬA LINK RENDER BACKEND CỦA BẠN VÀO ĐÂY (Không có dấu / ở cuối)
+        // SỬA LINK RENDER CỦA BẠN VÀO ĐÂY
         const API_URL = 'https://samxmodz-api.onrender.com'; 
+        
+        let isLoginMode = true; // Mặc định là Đăng nhập
 
-        // TỰ ĐỘNG BẬT NHẠC KHI CHẠM LẦN ĐẦU TIÊN
-        const enableMusic = () => {
-            const video = document.getElementById('bg-video');
-            if (video && video.muted) {
-                video.muted = false; 
-                video.play().catch(e => console.log("Lỗi phát nhạc:", e));
-            }
-            document.removeEventListener('click', enableMusic);
-            document.removeEventListener('touchstart', enableMusic);
-        };
-        document.addEventListener('click', enableMusic);
-        document.addEventListener('touchstart', enableMusic);
-
-        // Load file từ Backend
-        async function loadFiles() {
-            try {
-                const response = await fetch(API_URL + '/api/files');
-                const files = await response.json();
-                const container = document.getElementById('fileContainer');
-                
-                container.innerHTML = ''; 
-
-                if(files.length === 0) {
-                    container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng chờ SAMM X MODZ cập nhật file mới!</span></div>`;
-                    return;
-                }
-
-                files.forEach((file, index) => {
-                    const downloads = file.downloads || 0;
-                    container.innerHTML += `
-                        <div class="file-card" style="--i: ${index}">
-                            <div class="img-wrapper">
-                                <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'">
-                            </div>
-                            <div class="file-info">
-                                <h3>${file.title}</h3>
-                                <p>Cập nhật bởi SAMM X MODZ</p>
-                                <div class="download-count">🔥 Lượt tải: <span id="dl-count-${file.id}">${downloads}</span></div><br>
-                                <a href="${file.link}" target="_blank" class="btn-download" onclick="handleDownload(event, '${file.id}', '${file.link}')">TẢI XUỐNG</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch(e) { 
-                document.getElementById('fileContainer').innerHTML = `<div class="empty-state" style="color: #ff4444; border-color: #ff4444;">⚠️ KHÔNG THỂ KẾT NỐI ĐẾN SERVER<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng đợi 30 giây (Server đang khởi động) và tải lại trang!</span></div>`;
-            }
-        }
-        loadFiles();
-
-        // Xử lý khi bấm tải xuống
-        async function handleDownload(e, fileId, link) {
-            // Nếu chưa đăng nhập thì chặn lại
-            if (document.getElementById('displayStatus').innerText.includes('Chưa')) {
-                e.preventDefault();
-                alert('Vui lòng Đăng nhập để tải file!');
-                return;
-            }
-
-            // Nếu đã đăng nhập thì tăng lượt tải
-            try {
-                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
-                // Cập nhật số lượt tải trên màn hình ngay lập tức
-                const countSpan = document.getElementById('dl-count-' + fileId);
-                if (countSpan) {
-                    countSpan.innerText = parseInt(countSpan.innerText) + 1;
-                }
-            } catch(e) { console.log("Lỗi đếm view"); }
+        // Chuyển đổi Tab Đăng nhập / Đăng ký
+        function switchAuthTab(mode) {
+            isLoginMode = (mode === 'login');
+            document.getElementById('tabLogin').classList.toggle('active', isLoginMode);
+            document.getElementById('tabRegister').classList.toggle('active', !isLoginMode);
+            document.getElementById('authBtn').innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
+            document.getElementById('authError').style.display = 'none';
         }
 
-        // Các hàm phụ trợ khác (Giữ nguyên)
-        async function fetchWithRetry(url, options, retries = 3, delay = 3000) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) return response;
-                    if (response.status >= 400 && response.status < 500) return response;
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await new Promise(r => setTimeout(r, delay));
-                }
-            }
-            throw new Error("Không thể kết nối Server");
-        }
-
+        // Xử lý Đăng nhập / Đăng ký
         async function submitAuth() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const isRegister = document.getElementById('modalTitle').innerText.includes('ĐĂNG KÝ');
+            const errorDiv = document.getElementById('authError');
             
-            if (!username || !password) return alert('Nhập đủ thông tin!');
+            if (!username || !password) {
+                errorDiv.innerText = "Vui lòng nhập đủ Tài khoản và Mật khẩu!";
+                errorDiv.style.display = 'block';
+                return;
+            }
 
             const btn = document.getElementById('authBtn');
             btn.innerText = "ĐANG KẾT NỐI..."; 
             btn.disabled = true;
+            errorDiv.style.display = 'none';
             
             try {
-                const res = await fetchWithRetry(API_URL + (isRegister ? '/api/register' : '/api/login'), {
+                const endpoint = isLoginMode ? '/api/login' : '/api/register';
+                const res = await fetch(API_URL + endpoint, {
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -325,28 +246,115 @@
                 const data = await res.json();
                 
                 if (res.ok) {
-                    alert(data.message);
-                    if (!isRegister) {
-                        document.getElementById('displayUsername').innerText = username;
-                        document.getElementById('displayStatus').innerText = 'Đã đăng nhập';
-                        document.getElementById('displayStatus').style.color = 'var(--primary)';
-                        document.getElementById('authButtons').innerHTML = `<button onclick="location.reload()" style="border-color: #ff4444; color: #ff4444;">Đăng Xuất</button>`;
+                    if (isLoginMode) {
+                        // Đăng nhập thành công -> Mở khóa màn hình chính
+                        showMainApp(username);
+                    } else {
+                        // Đăng ký thành công -> Tự động chuyển sang tab Đăng nhập
+                        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+                        switchAuthTab('login');
+                        btn.innerText = "VÀO SHOP NGAY";
+                        btn.disabled = false;
                     }
-                    closeModal();
                 } else { 
-                    alert(data.error); 
+                    errorDiv.innerText = data.error;
+                    errorDiv.style.display = 'block';
+                    btn.innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
+                    btn.disabled = false;
                 }
             } catch (error) { 
-                alert('Server đang khởi động lại (Gói Free). Vui lòng đợi 30 giây, sau đó bấm Xác nhận lại!'); 
-            } finally {
-                btn.innerText = "XÁC NHẬN";
+                errorDiv.innerText = 'Server đang khởi động. Vui lòng đợi 30 giây và thử lại!';
+                errorDiv.style.display = 'block';
+                btn.innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
                 btn.disabled = false;
             }
         }
 
-        function openModal(type) { document.getElementById('authModal').style.display = 'flex'; document.getElementById('modalTitle').innerText = type.toUpperCase(); }
-        function closeModal() { document.getElementById('authModal').style.display = 'none'; }
-        
+        // Hàm mở khóa màn hình chính
+        function showMainApp(username) {
+            // 1. Ẩn màn hình đăng nhập
+            const authScreen = document.getElementById('authScreen');
+            authScreen.style.opacity = '0';
+            setTimeout(() => { authScreen.style.display = 'none'; }, 500);
+
+            // 2. Hiện màn hình chính
+            const mainApp = document.getElementById('mainApp');
+            mainApp.style.display = 'block';
+            setTimeout(() => { mainApp.style.opacity = '1'; }, 100);
+
+            // 3. Cập nhật thông tin user
+            document.getElementById('displayUsername').innerText = username;
+
+            // 4. Bắt đầu tải file
+            autoSyncFiles();
+            setInterval(autoSyncFiles, 3000); // Tự động cập nhật
+        }
+
+        function logoutUser() {
+            location.reload(); // Tải lại trang để quay về màn hình đăng nhập
+        }
+
+        // ==========================================
+        // CÁC HÀM XỬ LÝ KHO FILE
+        // ==========================================
+        let lastFilesJson = "";
+        async function autoSyncFiles() {
+            try {
+                const response = await fetch(API_URL + '/api/files');
+                const files = await response.json();
+                const filesJson = JSON.stringify(files);
+                
+                if(filesJson !== lastFilesJson) {
+                    lastFilesJson = filesJson;
+                    const container = document.getElementById('fileContainer');
+                    container.innerHTML = ''; 
+
+                    if(files.length === 0) {
+                        container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng chờ SAMM X MODZ cập nhật file mới!</span></div>`;
+                        return;
+                    }
+
+                    files.forEach((file, index) => {
+                        const downloads = file.downloads || 0;
+                        container.innerHTML += `
+                            <div class="file-card" style="--i: ${index}">
+                                <div class="img-wrapper">
+                                    <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'">
+                                </div>
+                                <div class="file-info">
+                                    <h3>${file.title}</h3>
+                                    <p>Cập nhật bởi SAMM X MODZ</p>
+                                    <div class="download-count">🔥 Lượt tải: <span id="dl-count-${file.id}">${downloads}</span></div><br>
+                                    <a href="${file.link}" target="_blank" class="btn-download" onclick="handleDownload(event, '${file.id}', '${file.link}')">TẢI XUỐNG</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch(e) { }
+        }
+
+        async function handleDownload(e, fileId, link) {
+            e.preventDefault(); // Ngăn chặn mở link ngay lập tức để đếm view trước
+            try {
+                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
+                const countSpan = document.getElementById('dl-count-' + fileId);
+                if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
+            } catch(e) { }
+            window.open(link, '_blank'); // Mở link tải sau khi đếm
+        }
+
+        // ==========================================
+        // CHAT BOT & VIDEO
+        // ==========================================
+        document.body.addEventListener('click', function() {
+            var video = document.getElementById('bg-video');
+            if(video && video.muted) {
+                video.muted = false; 
+                video.play().catch(e => {});
+            }
+        });
+
         function toggleChat() { var chat = document.getElementById('chatWindow'); chat.style.display = chat.style.display === 'block' ? 'none' : 'block'; }
         function handleChat(e) { if (e.key === 'Enter') sendChat(); }
         function sendChat() {

@@ -20,17 +20,14 @@
                 radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.05), transparent 25%);
         }
 
-        /* Video nền - Đã bỏ Blur, sáng hơn */
+        /* Video nền sáng hơn */
         #bg-video { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: -2; opacity: 0.85; /* Tăng độ sáng */
-            pointer-events: none;
+            object-fit: cover; z-index: -2; opacity: 0.85; pointer-events: none;
         }
-        /* Lớp phủ mỏng để chữ dễ đọc hơn, không làm tối video */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(to bottom, rgba(3,3,5,0.4), rgba(3,3,5,0.8)); 
-            z-index: -1; 
+            background: linear-gradient(to bottom, rgba(3,3,5,0.4), rgba(3,3,5,0.8)); z-index: -1; 
         }
 
         /* Header */
@@ -47,15 +44,12 @@
             filter: drop-shadow(0 0 8px var(--primary)); letter-spacing: 2px;
         }
         .auth-buttons { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        
         .auth-buttons button {
             background: transparent; color: var(--primary); border: 1px solid var(--primary);
             padding: 8px 20px; border-radius: 5px; cursor: pointer;
             font-family: 'Orbitron', sans-serif; font-weight: 700; transition: all 0.4s ease;
         }
-        .auth-buttons button:hover { 
-            background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); transform: translateY(-2px);
-        }
+        .auth-buttons button:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); transform: translateY(-2px); }
 
         .container { padding: 40px 5%; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
         
@@ -65,8 +59,7 @@
         }
         h2::before { 
             content: ''; display: inline-block; width: 8px; height: 30px; 
-            background: var(--primary); margin-right: 15px; 
-            box-shadow: 0 0 20px var(--primary); border-radius: 4px;
+            background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); border-radius: 4px;
         }
 
         /* File Grid */
@@ -85,18 +78,32 @@
         .file-card:hover { transform: translateY(-15px) scale(1.03); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
         .file-card:hover::before { transform: translateX(100%); }
         
-        .img-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; border-bottom: 2px solid var(--primary); }
+        .img-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; }
         .file-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .file-card:hover .file-img { transform: scale(1.1); }
         .file-info { padding: 25px; }
         .file-card h3 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
-        .file-card p { color: #aaa; font-size: 14px; margin-bottom: 25px; }
-        .file-card a {
+        .file-card p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
+        
+        /* Lượt tải */
+        .download-count {
+            display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary);
+            padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold;
+        }
+
+        .file-card a.btn-download {
             display: inline-block; background: transparent; color: var(--primary); 
             border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; 
             text-decoration: none; font-weight: 900; font-size: 15px; transition: 0.4s; position: relative; overflow: hidden;
         }
-        .file-card a:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+        .file-card a.btn-download:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+
+        /* Trạng thái trống */
+        .empty-state {
+            grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--glass-bg);
+            border: 1px dashed var(--primary); border-radius: 20px; color: var(--primary);
+            font-family: 'Orbitron'; font-size: 18px; letter-spacing: 1px;
+        }
 
         /* Box Zalo */
         .box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
@@ -150,7 +157,6 @@
     </style>
 </head>
 <body>
-    <!-- Video nền: Tự động phát hình, tắt tiếng chờ người dùng chạm -->
     <video autoplay loop muted playsinline id="bg-video">
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
@@ -168,6 +174,7 @@
         <h2>KHO TẢI GAME</h2>
         <div class="file-grid" id="fileContainer">
             <!-- File load từ Backend tự động -->
+            <div class="empty-state">⏳ Đang tải dữ liệu từ hệ thống...</div>
         </div>
 
         <h2>KHU VỰC BOX ZALO</h2>
@@ -210,19 +217,16 @@
     </div>
 
     <script>
-        // ====================================================
         // SỬA LINK RENDER BACKEND CỦA BẠN VÀO ĐÂY (Không có dấu / ở cuối)
         const API_URL = 'https://samxmodz-api.onrender.com'; 
-        // ====================================================
 
         // TỰ ĐỘNG BẬT NHẠC KHI CHẠM LẦN ĐẦU TIÊN
         const enableMusic = () => {
             const video = document.getElementById('bg-video');
             if (video && video.muted) {
-                video.muted = false; // Bật âm thanh
+                video.muted = false; 
                 video.play().catch(e => console.log("Lỗi phát nhạc:", e));
             }
-            // Xóa sự kiện sau khi đã bật để không ảnh hưởng các cú click khác
             document.removeEventListener('click', enableMusic);
             document.removeEventListener('touchstart', enableMusic);
         };
@@ -236,28 +240,56 @@
                 const files = await response.json();
                 const container = document.getElementById('fileContainer');
                 
-                if(files.length > 0) {
-                    container.innerHTML = ''; 
-                    files.forEach((file, index) => {
-                        container.innerHTML += `
-                            <div class="file-card" style="--i: ${index}">
-                                <div class="img-wrapper">
-                                    <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://i.ibb.co/680hYh2/freefire.jpg'">
-                                </div>
-                                <div class="file-info">
-                                    <h3>${file.title}</h3>
-                                    <p>Cập nhật bởi SAMM X MODZ</p>
-                                    <a href="${file.link}" target="_blank" onclick="checkLogin(event)">TẢI XUỐNG</a>
-                                </div>
-                            </div>
-                        `;
-                    });
+                container.innerHTML = ''; 
+
+                if(files.length === 0) {
+                    container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng chờ SAMM X MODZ cập nhật file mới!</span></div>`;
+                    return;
                 }
-            } catch(e) { console.log("Server đang ngủ, không tải được file."); }
+
+                files.forEach((file, index) => {
+                    const downloads = file.downloads || 0;
+                    container.innerHTML += `
+                        <div class="file-card" style="--i: ${index}">
+                            <div class="img-wrapper">
+                                <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'">
+                            </div>
+                            <div class="file-info">
+                                <h3>${file.title}</h3>
+                                <p>Cập nhật bởi SAMM X MODZ</p>
+                                <div class="download-count">🔥 Lượt tải: <span id="dl-count-${file.id}">${downloads}</span></div><br>
+                                <a href="${file.link}" target="_blank" class="btn-download" onclick="handleDownload(event, '${file.id}', '${file.link}')">TẢI XUỐNG</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e) { 
+                document.getElementById('fileContainer').innerHTML = `<div class="empty-state" style="color: #ff4444; border-color: #ff4444;">⚠️ KHÔNG THỂ KẾT NỐI ĐẾN SERVER<br><br><span style="font-size: 14px; color: #fff; font-family: 'Roboto';">Vui lòng đợi 30 giây (Server đang khởi động) và tải lại trang!</span></div>`;
+            }
         }
         loadFiles();
 
-        // Hàm hỗ trợ: Tự động thử lại nếu server đang ngủ đông
+        // Xử lý khi bấm tải xuống
+        async function handleDownload(e, fileId, link) {
+            // Nếu chưa đăng nhập thì chặn lại
+            if (document.getElementById('displayStatus').innerText.includes('Chưa')) {
+                e.preventDefault();
+                alert('Vui lòng Đăng nhập để tải file!');
+                return;
+            }
+
+            // Nếu đã đăng nhập thì tăng lượt tải
+            try {
+                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
+                // Cập nhật số lượt tải trên màn hình ngay lập tức
+                const countSpan = document.getElementById('dl-count-' + fileId);
+                if (countSpan) {
+                    countSpan.innerText = parseInt(countSpan.innerText) + 1;
+                }
+            } catch(e) { console.log("Lỗi đếm view"); }
+        }
+
+        // Các hàm phụ trợ khác (Giữ nguyên)
         async function fetchWithRetry(url, options, retries = 3, delay = 3000) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -272,7 +304,6 @@
             throw new Error("Không thể kết nối Server");
         }
 
-        // Xử lý Đăng Nhập / Đăng Ký
         async function submitAuth() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -313,16 +344,9 @@
             }
         }
 
-        // Các hàm phụ trợ
         function openModal(type) { document.getElementById('authModal').style.display = 'flex'; document.getElementById('modalTitle').innerText = type.toUpperCase(); }
         function closeModal() { document.getElementById('authModal').style.display = 'none'; }
-        function checkLogin(e) {
-            if (document.getElementById('displayStatus').innerText.includes('Chưa')) {
-                if(e) e.preventDefault();
-                alert('Vui lòng Đăng nhập để tải file!');
-            }
-        }
-
+        
         function toggleChat() { var chat = document.getElementById('chatWindow'); chat.style.display = chat.style.display === 'block' ? 'none' : 'block'; }
         function handleChat(e) { if (e.key === 'Enter') sendChat(); }
         function sendChat() {

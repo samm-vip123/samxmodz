@@ -8,7 +8,7 @@
     <style>
         :root {
             --primary: #00ffcc; --primary-dark: #00b38f; --secondary: #ff0055;
-            --bg-dark: #030305; --glass-bg: rgba(10, 10, 15, 0.7); --glass-border: rgba(0, 255, 204, 0.3);
+            --bg-dark: #030305; --glass-bg: rgba(10, 10, 15, 0.6); --glass-border: rgba(0, 255, 204, 0.3);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -16,20 +16,26 @@
             font-family: 'Roboto', sans-serif; color: #fff; background-color: var(--bg-dark); 
             min-height: 100vh; overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 255, 204, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.08), transparent 25%);
+                radial-gradient(circle at 15% 50%, rgba(0, 255, 204, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.05), transparent 25%);
         }
 
-        /* Video nền */
+        /* Video nền - Đã bỏ Blur, sáng hơn */
         #bg-video { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: -2; opacity: 0.4; filter: blur(3px); pointer-events: none;
+            object-fit: cover; z-index: -2; opacity: 0.85; /* Tăng độ sáng */
+            pointer-events: none;
         }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(3,3,5,0.6), var(--bg-dark)); z-index: -1; }
+        /* Lớp phủ mỏng để chữ dễ đọc hơn, không làm tối video */
+        .overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(to bottom, rgba(3,3,5,0.4), rgba(3,3,5,0.8)); 
+            z-index: -1; 
+        }
 
         /* Header */
         header {
-            background: rgba(3, 3, 5, 0.8); backdrop-filter: blur(20px); padding: 15px 5%;
+            background: rgba(3, 3, 5, 0.7); backdrop-filter: blur(15px); padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100;
             box-shadow: 0 5px 30px rgba(0, 255, 204, 0.15);
@@ -42,18 +48,12 @@
         }
         .auth-buttons { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
         
-        .btn-music { 
-            background: rgba(255, 0, 85, 0.2); color: var(--secondary); border: 1px solid var(--secondary); 
-            padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;
-        }
-        .btn-music:hover { background: var(--secondary); color: #fff; box-shadow: 0 0 15px var(--secondary); }
-        
-        .auth-buttons button:not(.btn-music) {
+        .auth-buttons button {
             background: transparent; color: var(--primary); border: 1px solid var(--primary);
             padding: 8px 20px; border-radius: 5px; cursor: pointer;
             font-family: 'Orbitron', sans-serif; font-weight: 700; transition: all 0.4s ease;
         }
-        .auth-buttons button:not(.btn-music):hover { 
+        .auth-buttons button:hover { 
             background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); transform: translateY(-2px);
         }
 
@@ -72,7 +72,7 @@
         /* File Grid */
         .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
         .file-card {
-            background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
+            background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
             text-align: center; backdrop-filter: blur(15px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; overflow: hidden; opacity: 0; transform: translateY(30px);
             animation: fadeUp 0.8s forwards; animation-delay: calc(var(--i) * 0.15s);
@@ -101,18 +101,18 @@
         /* Box Zalo */
         .box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
         .zalo-box {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff; padding: 20px; border-radius: 15px; text-decoration: none;
             display: flex; align-items: center; gap: 15px; font-weight: 500; transition: 0.4s;
         }
-        .zalo-box:hover { background: rgba(0, 255, 204, 0.1); transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,255,204,0.1); }
+        .zalo-box:hover { background: rgba(0, 255, 204, 0.15); transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 20px rgba(0,255,204,0.1); }
         .zalo-icon { width: 40px; height: 40px; background: #fff; border-radius: 50%; color: #0068ff; display: flex; justify-content: center; align-items: center; font-weight: 900; font-family: 'Orbitron'; font-size: 18px; }
         .vip { border-color: #ff9800; background: rgba(255, 152, 0, 0.05); }
         .vip .zalo-icon { color: #ff9800; }
         .vip:hover { background: rgba(255, 152, 0, 0.15); box-shadow: 0 0 20px rgba(255, 152, 0, 0.3); border-color: #ff9800; }
 
         /* Panel Thông tin */
-        .glass-panel { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); }
+        .glass-panel { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); }
         .info-panel p { margin-bottom: 15px; font-size: 16px; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px;}
         .info-panel strong { color: var(--primary); font-family: 'Orbitron'; }
 
@@ -150,8 +150,8 @@
     </style>
 </head>
 <body>
-    <!-- Video nền (Dùng cho cả nhạc nổi) -->
-    <video autoplay loop playsinline id="bg-video">
+    <!-- Video nền: Tự động phát hình, tắt tiếng chờ người dùng chạm -->
+    <video autoplay loop muted playsinline id="bg-video">
         <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
@@ -159,7 +159,6 @@
     <header>
         <div class="logo">SAMM X MODZ</div>
         <div class="auth-buttons" id="authButtons">
-            <button class="btn-music" onclick="toggleMusic()" id="musicBtn">Bật Nhạc</button>
             <button onclick="openModal('Đăng Nhập')">Đăng Nhập</button>
             <button onclick="openModal('Đăng Ký')">Đăng Ký</button>
         </div>
@@ -216,7 +215,21 @@
         const API_URL = 'https://samxmodz-api.onrender.com'; 
         // ====================================================
 
-        // 1. Load file từ Backend (Có cơ chế thử lại nếu server ngủ)
+        // TỰ ĐỘNG BẬT NHẠC KHI CHẠM LẦN ĐẦU TIÊN
+        const enableMusic = () => {
+            const video = document.getElementById('bg-video');
+            if (video && video.muted) {
+                video.muted = false; // Bật âm thanh
+                video.play().catch(e => console.log("Lỗi phát nhạc:", e));
+            }
+            // Xóa sự kiện sau khi đã bật để không ảnh hưởng các cú click khác
+            document.removeEventListener('click', enableMusic);
+            document.removeEventListener('touchstart', enableMusic);
+        };
+        document.addEventListener('click', enableMusic);
+        document.addEventListener('touchstart', enableMusic);
+
+        // Load file từ Backend
         async function loadFiles() {
             try {
                 const response = await fetch(API_URL + '/api/files');
@@ -244,7 +257,7 @@
         }
         loadFiles();
 
-        // 2. Hàm hỗ trợ: Tự động thử lại nếu server đang ngủ đông (Spin-down)
+        // Hàm hỗ trợ: Tự động thử lại nếu server đang ngủ đông
         async function fetchWithRetry(url, options, retries = 3, delay = 3000) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -253,13 +266,13 @@
                     if (response.status >= 400 && response.status < 500) return response;
                 } catch (error) {
                     if (i === retries - 1) throw error;
-                    await new Promise(r => setTimeout(r, delay)); // Đợi 3s rồi thử lại
+                    await new Promise(r => setTimeout(r, delay));
                 }
             }
             throw new Error("Không thể kết nối Server");
         }
 
-        // 3. Xử lý Đăng Nhập / Đăng Ký
+        // Xử lý Đăng Nhập / Đăng Ký
         async function submitAuth() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -286,7 +299,7 @@
                         document.getElementById('displayUsername').innerText = username;
                         document.getElementById('displayStatus').innerText = 'Đã đăng nhập';
                         document.getElementById('displayStatus').style.color = 'var(--primary)';
-                        document.getElementById('authButtons').innerHTML = `<button class="btn-music" onclick="toggleMusic()" id="musicBtn">Bật Nhạc</button><button onclick="location.reload()" style="border-color: #ff4444; color: #ff4444;">Đăng Xuất</button>`;
+                        document.getElementById('authButtons').innerHTML = `<button onclick="location.reload()" style="border-color: #ff4444; color: #ff4444;">Đăng Xuất</button>`;
                     }
                     closeModal();
                 } else { 
@@ -300,40 +313,7 @@
             }
         }
 
-        // 4. Nhạc nền nổi (Picture-in-Picture)
-        let isMusicOn = false;
-        async function toggleMusic() {
-            const video = document.getElementById('bg-video');
-            const btn = document.getElementById('musicBtn');
-
-            if (!isMusicOn) {
-                try {
-                    video.muted = false;
-                    await video.play();
-                    if (document.pictureInPictureEnabled) {
-                        await video.requestPictureInPicture();
-                    }
-                    btn.innerText = "Tắt Nhạc";
-                    btn.style.background = "var(--primary)";
-                    btn.style.color = "#000";
-                    isMusicOn = true;
-                } catch (error) {
-                    alert('Trình duyệt chặn phát nhạc nổi!');
-                }
-            } else {
-                video.pause();
-                video.muted = true;
-                if (document.pictureInPictureElement) {
-                    await document.exitPictureInPicture();
-                }
-                btn.innerText = "Bật Nhạc";
-                btn.style.background = "rgba(255, 0, 85, 0.2)";
-                btn.style.color = "var(--secondary)";
-                isMusicOn = false;
-            }
-        }
-
-        // 5. Các hàm phụ trợ
+        // Các hàm phụ trợ
         function openModal(type) { document.getElementById('authModal').style.display = 'flex'; document.getElementById('modalTitle').innerText = type.toUpperCase(); }
         function closeModal() { document.getElementById('authModal').style.display = 'none'; }
         function checkLogin(e) {

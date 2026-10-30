@@ -9,126 +9,170 @@
         :root { --primary: #00ffcc; --bg-dark: #0a0a0a; --panel-bg: #151515; }
         body { font-family: 'Roboto', sans-serif; background: var(--bg-dark); color: #fff; padding: 20px; margin: 0; }
         .container { max-width: 900px; margin: 0 auto; }
-        h1, h2 { font-family: 'Orbitron'; color: var(--primary); text-align: center; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
-        .panel { background: var(--panel-bg); border: 1px solid rgba(0,255,204,0.2); border-radius: 15px; padding: 25px; margin-bottom: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        
+        h1, h2 { font-family: 'Orbitron'; color: var(--primary); text-align: center; }
+        .panel { background: var(--panel-bg); border: 1px solid rgba(0,255,204,0.2); border-radius: 15px; padding: 25px; margin-bottom: 30px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; color: #aaa; font-size: 14px; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; }
         button { background: var(--primary); color: #000; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Orbitron'; width: 100%; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #fff; box-shadow: 0 0 15px var(--primary); }
 
-        /* Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; font-size: 14px; }
-        th { color: var(--primary); font-family: 'Orbitron'; font-weight: 500; }
-        .badge { background: rgba(0,255,204,0.2); color: var(--primary); padding: 3px 8px; border-radius: 5px; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        th { color: var(--primary); font-family: 'Orbitron'; }
+        .btn-edit { background: #ff9800; padding: 5px 10px; width: auto; margin: 0 5px; font-size: 12px; }
+        .btn-del { background: #ff4444; color: white; padding: 5px 10px; width: auto; margin: 0 5px; font-size: 12px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>QUẢN TRỊ VIÊN SAMM X MODZ</h1>
+    <h1>QUẢN TRỊ VIÊN</h1>
     
-    <!-- Form thêm file -->
+    <!-- Form Thêm/Sửa File -->
     <div class="panel">
-        <h2>THÊM FILE MỚI</h2>
+        <h2 id="formTitle">THÊM FILE MỚI</h2>
+        <input type="hidden" id="editFileId">
         <div class="form-group">
-            <label>Tên File / Tên Game:</label>
+            <label>Tên File / Game:</label>
             <input type="text" id="fileName" placeholder="Ví dụ: Aim Hack FF V2">
         </div>
         <div class="form-group">
             <label>Link Ảnh (URL):</label>
-            <input type="text" id="fileImage" placeholder="https://... (Dán link ảnh vào đây)">
+            <input type="text" id="fileImage" placeholder="https://...">
         </div>
         <div class="form-group">
-            <label>Link Tải File (Google Drive, v.v.):</label>
+            <label>Link Tải File:</label>
             <input type="text" id="fileLink" placeholder="https://...">
         </div>
-        <button onclick="addFile()">CẬP NHẬT LÊN WEB</button>
+        <button onclick="saveFile()" id="btnSave">CẬP NHẬT LÊN WEB</button>
+        <button onclick="resetForm()" id="btnCancel" style="display:none; background:#555; color:#fff; margin-top:5px;">HỦY SỬA</button>
+    </div>
+
+    <!-- Danh sách File -->
+    <div class="panel">
+        <h2>DANH SÁCH FILE ĐANG CÓ</h2>
+        <table>
+            <thead><tr><th>Tên File</th><th>Lượt tải</th><th>Hành động</th></tr></thead>
+            <tbody id="fileTableBody"></tbody>
+        </table>
     </div>
 
     <!-- Danh sách User -->
     <div class="panel">
-        <h2>TẤT CẢ TÀI KHOẢN TRUY CẬP</h2>
+        <h2>TẤT CẢ TÀI KHOẢN</h2>
         <table>
-            <thead>
-                <tr>
-                    <th>Tài khoản (Username)</th>
-                    <th>Mật khẩu</th>
-                    <th>Trạng thái</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody">
-                <!-- Data load từ server vào đây -->
-            </tbody>
+            <thead><tr><th>Tài khoản</th><th>Mật khẩu</th></tr></thead>
+            <tbody id="userTableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK NÀY THÀNH LINK RENDER BACKEND CỦA BẠN
+    const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK NÀY
+    let currentFiles = [];
 
-    // Hàm thêm File
-    async function addFile() {
+    // Thêm / Sửa File
+    async function saveFile() {
+        const id = document.getElementById('editFileId').value;
         const title = document.getElementById('fileName').value;
         const imageUrl = document.getElementById('fileImage').value;
         const link = document.getElementById('fileLink').value;
 
-        if (!title || !link) return alert('Vui lòng nhập Tên file và Link tải!');
+        if (!title || !link) return alert('Nhập đủ Tên và Link!');
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_URL}/api/admin/edit-file/${id}` : `${API_URL}/api/admin/add-file`;
 
         try {
-            const response = await fetch(API_URL + '/api/admin/add-file', {
-                method: 'POST',
+            const res = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, imageUrl, link })
             });
-            const data = await response.json();
-            
-            if(response.ok) {
-                alert('Đã thêm file lên web thành công!');
-                document.getElementById('fileName').value = '';
-                document.getElementById('fileImage').value = '';
-                document.getElementById('fileLink').value = '';
-            } else {
-                alert('Lỗi: ' + data.error);
-            }
-        } catch (e) {
-            alert('Lỗi kết nối tới Backend!');
-        }
+            const data = await res.json();
+            if(res.ok) {
+                alert(data.message);
+                resetForm();
+                loadFiles(); // Tải lại danh sách
+            } else alert(data.error);
+        } catch (e) { alert('Lỗi kết nối Server!'); }
     }
 
-    // Hàm tải danh sách User
-    async function loadUsers() {
-        try {
-            const response = await fetch(API_URL + '/api/admin/users');
-            const users = await response.json();
-            const tbody = document.getElementById('userTableBody');
-            
-            tbody.innerHTML = '';
-            if(users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Chưa có ai đăng ký</td></tr>';
-                return;
-            }
+    // Đưa dữ liệu lên form để sửa
+    function editFile(id) {
+        const file = currentFiles.find(f => f.id === id);
+        if(!file) return;
+        document.getElementById('editFileId').value = file.id;
+        document.getElementById('fileName').value = file.title;
+        document.getElementById('fileImage').value = file.imageUrl;
+        document.getElementById('fileLink').value = file.link;
+        
+        document.getElementById('formTitle').innerText = "SỬA FILE";
+        document.getElementById('btnSave').innerText = "LƯU THAY ĐỔI";
+        document.getElementById('btnCancel').style.display = "block";
+        window.scrollTo(0,0);
+    }
 
-            users.forEach(user => {
+    function resetForm() {
+        document.getElementById('editFileId').value = '';
+        document.getElementById('fileName').value = '';
+        document.getElementById('fileImage').value = '';
+        document.getElementById('fileLink').value = '';
+        document.getElementById('formTitle').innerText = "THÊM FILE MỚI";
+        document.getElementById('btnSave').innerText = "CẬP NHẬT LÊN WEB";
+        document.getElementById('btnCancel').style.display = "none";
+    }
+
+    // Xóa File
+    async function deleteFile(id) {
+        if(!confirm('Bạn có chắc chắn muốn xóa file này?')) return;
+        try {
+            const res = await fetch(`${API_URL}/api/admin/delete-file/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if(res.ok) { alert(data.message); loadFiles(); }
+            else alert(data.error);
+        } catch (e) { alert('Lỗi kết nối Server!'); }
+    }
+
+    // Load danh sách File
+    async function loadFiles() {
+        try {
+            const res = await fetch(API_URL + '/api/files');
+            currentFiles = await res.json();
+            const tbody = document.getElementById('fileTableBody');
+            tbody.innerHTML = currentFiles.length ? '' : '<tr><td colspan="3">Chưa có file nào</td></tr>';
+            
+            currentFiles.forEach(f => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${user.username}</strong></td>
-                        <td>${user.password}</td>
-                        <td><span class="badge">Hoạt động</span></td>
+                        <td>${f.title}</td>
+                        <td>${f.downloads || 0}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editFile(${f.id})">Sửa</button>
+                            <button class="btn-del" onclick="deleteFile(${f.id})">Xóa</button>
+                        </td>
                     </tr>
                 `;
             });
-        } catch (e) {
-            document.getElementById('userTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center; color: #ff4444;">Không thể kết nối Backend</td></tr>';
-        }
+        } catch (e) { console.log(e); }
     }
 
-    // Chạy khi mở trang
+    // Load danh sách User
+    async function loadUsers() {
+        try {
+            const res = await fetch(API_URL + '/api/admin/users');
+            const users = await res.json();
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = users.length ? '' : '<tr><td colspan="2">Chưa có ai đăng ký</td></tr>';
+            users.forEach(u => {
+                tbody.innerHTML += `<tr><td><strong>${u.username}</strong></td><td>${u.password}</td></tr>`;
+            });
+        } catch (e) { console.log(e); }
+    }
+
+    loadFiles();
     loadUsers();
 </script>
-
 </body>
 </html>

@@ -3,88 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - SAMM X MODZ</title>
+    <title>ADMIN - SAMM X MODZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background: #111; color: white; padding: 20px; }
-        .admin-container { max-width: 800px; margin: 0 auto; background: #222; padding: 20px; border-radius: 10px; border: 1px solid #00ffcc; }
-        h1 { color: #00ffcc; text-align: center; }
+        :root { --primary: #00ffcc; --bg-dark: #0a0a0a; --panel-bg: #151515; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg-dark); color: #fff; padding: 20px; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1, h2 { font-family: 'Orbitron'; color: var(--primary); text-align: center; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+        .panel { background: var(--panel-bg); border: 1px solid rgba(0,255,204,0.2); border-radius: 15px; padding: 25px; margin-bottom: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input, select { width: 100%; padding: 10px; background: #333; border: 1px solid #555; color: white; border-radius: 5px; }
-        button { background: #00ffcc; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        button:hover { background: #fff; }
-        .file-list { margin-top: 20px; border-top: 1px solid #444; padding-top: 20px; }
-        .file-item { background: #333; padding: 10px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-del { background: #ff4444; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; width: auto; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 14px; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); }
+        button { background: var(--primary); color: #000; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Orbitron'; width: 100%; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #fff; box-shadow: 0 0 15px var(--primary); }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; font-size: 14px; }
+        th { color: var(--primary); font-family: 'Orbitron'; font-weight: 500; }
+        .badge { background: rgba(0,255,204,0.2); color: var(--primary); padding: 3px 8px; border-radius: 5px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <h1>QUẢN TRỊ VIÊN: SAMM X MODZ</h1>
+<div class="container">
+    <h1>QUẢN TRỊ VIÊN SAMM X MODZ</h1>
     
-    <div class="form-group">
-        <label>Chọn khu vực:</label>
-        <select id="fileCategory">
-            <option value="ff">AIM HACK FREE FIRE</option>
-            <option value="lq">AIM HACK LIÊN QUÂN</option>
-            <option value="3105">FILE 3105</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Tên File / Tiêu đề:</label>
-        <input type="text" id="fileName" placeholder="Ví dụ: Aim Hack FF V2">
-    </div>
-
-    <div class="form-group">
-        <label>Link tải File (Google Drive, v.v.):</label>
-        <input type="text" id="fileLink" placeholder="https://...">
-    </div>
-
-    <div class="form-group">
-        <label>Chọn ảnh (Từ thư viện):</label>
-        <input type="file" id="fileImage" accept="image/*">
-    </div>
-
-    <button onclick="addFile()">CẬP NHẬT FILE LÊN WEB</button>
-
-    <div class="file-list" id="fileList">
-        <h3>Danh sách File đã đăng:</h3>
-        <!-- File sẽ được hiển thị ở đây -->
-        <div class="file-item">
-            <span>Aim Hack FF V1 (Free Fire)</span>
-            <button class="btn-del" onclick="this.parentElement.remove()">Xóa</button>
+    <!-- Form thêm file -->
+    <div class="panel">
+        <h2>THÊM FILE MỚI</h2>
+        <div class="form-group">
+            <label>Tên File / Tên Game:</label>
+            <input type="text" id="fileName" placeholder="Ví dụ: Aim Hack FF V2">
         </div>
+        <div class="form-group">
+            <label>Link Ảnh (URL):</label>
+            <input type="text" id="fileImage" placeholder="https://... (Dán link ảnh vào đây)">
+        </div>
+        <div class="form-group">
+            <label>Link Tải File (Google Drive, v.v.):</label>
+            <input type="text" id="fileLink" placeholder="https://...">
+        </div>
+        <button onclick="addFile()">CẬP NHẬT LÊN WEB</button>
+    </div>
+
+    <!-- Danh sách User -->
+    <div class="panel">
+        <h2>TẤT CẢ TÀI KHOẢN TRUY CẬP</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tài khoản (Username)</th>
+                    <th>Mật khẩu</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- Data load từ server vào đây -->
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    function addFile() {
-        var name = document.getElementById('fileName').value;
-        var link = document.getElementById('fileLink').value;
-        var category = document.getElementById('fileCategory').value;
+    const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK NÀY THÀNH LINK RENDER BACKEND CỦA BẠN
 
-        if (name === '' || link === '') {
-            alert('Vui lòng nhập đủ Tên File và Link tải!');
-            return;
+    // Hàm thêm File
+    async function addFile() {
+        const title = document.getElementById('fileName').value;
+        const imageUrl = document.getElementById('fileImage').value;
+        const link = document.getElementById('fileLink').value;
+
+        if (!title || !link) return alert('Vui lòng nhập Tên file và Link tải!');
+
+        try {
+            const response = await fetch(API_URL + '/api/admin/add-file', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, imageUrl, link })
+            });
+            const data = await response.json();
+            
+            if(response.ok) {
+                alert('Đã thêm file lên web thành công!');
+                document.getElementById('fileName').value = '';
+                document.getElementById('fileImage').value = '';
+                document.getElementById('fileLink').value = '';
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (e) {
+            alert('Lỗi kết nối tới Backend!');
         }
-
-        var fileList = document.getElementById('fileList');
-        var newItem = document.createElement('div');
-        newItem.className = 'file-item';
-        newItem.innerHTML = `
-            <span>${name} (${category.toUpperCase()})</span>
-            <button class="btn-del" onclick="this.parentElement.remove()">Xóa</button>
-        `;
-        fileList.appendChild(newItem);
-
-        // Reset form
-        document.getElementById('fileName').value = '';
-        document.getElementById('fileLink').value = '';
-        
-        alert('Đã thêm file vào danh sách (Demo). Để lưu thực sự lên web, cần kết nối Database!');
     }
+
+    // Hàm tải danh sách User
+    async function loadUsers() {
+        try {
+            const response = await fetch(API_URL + '/api/admin/users');
+            const users = await response.json();
+            const tbody = document.getElementById('userTableBody');
+            
+            tbody.innerHTML = '';
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Chưa có ai đăng ký</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.password}</td>
+                        <td><span class="badge">Hoạt động</span></td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            document.getElementById('userTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center; color: #ff4444;">Không thể kết nối Backend</td></tr>';
+        }
+    }
+
+    // Chạy khi mở trang
+    loadUsers();
 </script>
 
 </body>

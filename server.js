@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6767; // ĐÃ ĐỔI CỔNG THÀNH 6767
 
 const ADMIN_PASSWORD = "admin123"; 
 app.use(cors());
@@ -54,12 +54,11 @@ app.post('/api/get-key', (req, res) => {
     }
 
     const key = generateKey();
-    // Key free mặc định có hạn 1 ngày
     const newKey = { 
         key, 
         deviceId: deviceId || null, 
         createdAt: Date.now(), 
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 1 ngày
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000), 
         active: true, 
         usedCount: 0 
     };
@@ -77,46 +76,42 @@ app.post('/api/verify-key', (req, res) => {
 
     if (!found) return res.status(404).json({ success: false, message: 'Key không tồn tại' });
     if (!found.active) return res.status(403).json({ success: false, message: 'Key bị vô hiệu hóa' });
-    
-    // Kiểm tra hạn sử dụng
-    if (found.expiresAt && Date.now() > found.expiresAt) {
-        return res.status(403).json({ success: false, message: 'Key đã hết hạn sử dụng' });
-    }
+    if (found.expiresAt && Date.now() > found.expiresAt) return res.status(403).json({ success: false, message: 'Key đã hết hạn' });
 
     found.usedCount = (found.usedCount || 0) + 1;
     saveDB(db);
     res.json({ success: true, message: 'Key hợp lệ' });
 });
 
-// ============ API CẤU HÌNH PROXYPIN (Chỉ Server lưu) ============
-app.get('/api/config', (req, res) => {
-    const db = loadDB();
-    res.json({ success: true, config: db.config });
+// ============ API TẢI FILE CẤU HÌNH (.mobileconfig) ============
+// Tạo một route để tải file cấu hình trực tiếp từ server của bạn
+app.get('/api/download-config', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'proxypin.mobileconfig');
+    
+    if (fs.existsSync(filePath)) {
+        // Đặt header để trình duyệt hiểu đây là file cần tải về
+        res.setHeader('Content-Disposition', 'attachment; filename="proxypin.mobileconfig"');
+        res.setHeader('Content-Type', 'application/x-apple-aspen-config');
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send('Không tìm thấy file cấu hình trên Server.');
+    }
 });
 
-app.post('/api/config', (req, res) => {
-    const { proxypin } = req.body;
-    const db = loadDB();
-    db.config.proxypin = proxypin || "";
-    saveDB(db);
-    res.json({ success: true, message: 'Đã lưu cấu hình lên máy chủ' });
-});
-
-// ============ MIDDLEWARE CHECK ADMIN ============
+// ============ API ADMIN ============
 function checkAdmin(req, res, next) {
     const pass = req.headers['x-admin-password'] || req.body.password;
     if (pass !== ADMIN_PASSWORD) return res.status(401).json({ success: false, message: 'Sai mật khẩu Admin!' });
     next();
 }
 
-// ============ API ADMIN ============
 app.get('/api/admin/keys', checkAdmin, (req, res) => {
     const db = loadDB();
     res.json({ success: true, keys: db.keys.reverse() });
 });
 
 app.post('/api/admin/create', checkAdmin, (req, res) => {
-    const { amount, type } = req.body; // type: hour, day, week, month, lifetime
+    const { amount, type } = req.body; 
     const count = parseInt(amount) || 1;
     if (count > 100) return res.status(400).json({ success: false, message: 'Tối đa 100 key/lần' });
 
@@ -129,32 +124,21 @@ app.post('/api/admin/create', checkAdmin, (req, res) => {
     else if (type === 'day') expiresAt = now + (24 * 60 * 60 * 1000);
     else if (type === 'week') expiresAt = now + (7 * 24 * 60 * 60 * 1000);
     else if (type === 'month') expiresAt = now + (30 * 24 * 60 * 60 * 1000);
-    // lifetime => expiresAt = null
 
     for (let i = 0; i < count; i++) {
-        const newKey = {
-            key: generateKey(),
-            deviceId: "ADMIN_CREATED",
-            createdAt: now,
-            expiresAt: expiresAt,
-            active: true,
-            usedCount: 0
-        };
+        const newKey = { key: generateKey(), deviceId: "ADMIN_CREATED", createdAt: now, expiresAt: expiresAt, active: true, usedCount: 0 };
         db.keys.push(newKey);
         newKeys.push(newKey.key);
     }
     saveDB(db);
-    res.json({ success: true, message: `Đã tạo ${count} key (${type})`, keys: newKeys });
+    res.json({ success: true, message: `Đã tạo ${count} key (${type})` });
 });
 
 app.delete('/api/admin/delete/:key', checkAdmin, (req, res) => {
-    const keyToDelete = req.params.key;
     const db = loadDB();
     const initLength = db.keys.length;
-    db.keys = db.keys.filter(k => k.key !== keyToDelete);
-    
+    db.keys = db.keys.filter(k => k.key !== req.params.key);
     if (db.keys.length === initLength) return res.status(404).json({ success: false, message: 'Không tìm thấy key' });
-    
     saveDB(db);
     res.json({ success: true, message: 'Đã xóa key' });
 });
@@ -168,5 +152,6 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`\n🚀 SERVER CHẠY TẠI CỔNG: ${PORT}`);
+    console.log(`👉 TRANG CHỦ: http://localhost:${PORT}`);
     console.log(`👉 TRANG ADMIN: http://localhost:${PORT}/Admin.html\n`);
 });

@@ -8,49 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-body {
-    background: #05010f;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-    padding: 20px 14px;
-    font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
-    position: relative;
-}
-
-body::before {
-    content:''; position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(168, 85, 247, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%);
-    -webkit-mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%);
-    pointer-events: none; z-index: 0;
-}
-body::after {
-    content:''; position: fixed; width: 600px; height: 600px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(168,85,247,0.18), transparent 65%);
-    top: -200px; left: -150px; animation: drift 12s ease-in-out infinite alternate;
-    pointer-events: none; z-index: 0;
-}
+body { background: #05010f; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px 14px; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; position: relative; }
+body::before { content:''; position: fixed; inset: 0; background-image: linear-gradient(rgba(168, 85, 247, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%); -webkit-mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%); pointer-events: none; z-index: 0; }
+body::after { content:''; position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(168,85,247,0.18), transparent 65%); top: -200px; left: -150px; animation: drift 12s ease-in-out infinite alternate; pointer-events: none; z-index: 0; }
 @keyframes drift { to { transform: translate(120px, 100px); } }
-
-.app-frame {
-    position: relative; z-index: 2; max-width: 400px; width: 100%;
-    background: rgba(10, 4, 26, 0.82); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-    border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.35);
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.12) inset, 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 80px rgba(168, 85, 247, 0.22);
-    padding: 0 0 18px;
-    animation: frameGlow 4s ease-in-out infinite alternate;
-}
-
-@keyframes frameGlow {
-    0% { box-shadow: 0 0 0 1px rgba(34,211,238,0.12) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 60px rgba(168,85,247,0.18); }
-    100% { box-shadow: 0 0 0 1px rgba(34,211,238,0.2) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 100px rgba(168,85,247,0.32); }
-}
-
+.app-frame { position: relative; z-index: 2; max-width: 400px; width: 100%; background: rgba(10, 4, 26, 0.82); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.35); box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.12) inset, 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 80px rgba(168, 85, 247, 0.22); padding: 0 0 18px; animation: frameGlow 4s ease-in-out infinite alternate; }
+@keyframes frameGlow { 0% { box-shadow: 0 0 0 1px rgba(34,211,238,0.12) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 60px rgba(168,85,247,0.18); } 100% { box-shadow: 0 0 0 1px rgba(34,211,238,0.2) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 100px rgba(168,85,247,0.32); } }
 .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 14px; border-bottom: 1px solid rgba(168, 85, 247, 0.18); position: relative; }
 .top-bar::after { content:''; position: absolute; bottom: -1px; left: 18px; right: 18px; height: 1px; background: linear-gradient(90deg, transparent, #22d3ee, #a855f7, transparent); opacity: 0.7; }
 .brand { display: flex; align-items: center; gap: 11px; }
@@ -94,7 +57,6 @@ body::after {
 .key-result .result-label { font-size: 9px; letter-spacing: 2px; color: #22d3ee; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
 .key-result .result-key { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 900; color: #e9d5ff; padding: 8px; background: rgba(5, 1, 15, 0.6); border-radius: 8px; border: 1px dashed rgba(168, 85, 247, 0.3); margin-bottom: 8px; }
 .key-result .result-meta { font-size: 10px; color: #9d7fc4; }
-
 .main-wrap { padding: 16px 18px 4px; }
 .key-strip { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(34, 211, 238, 0.06); border: 1px solid rgba(34, 211, 238, 0.25); margin-bottom: 16px; }
 .key-strip i { color: #22d3ee; font-size: 13px; }
@@ -131,34 +93,20 @@ body::after {
 .btn-icon { width: 50px; border: 1.5px solid rgba(168, 85, 247, 0.35); border-radius: 12px; background: rgba(168, 85, 247, 0.06); color: #a855f7; font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .logout-line { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 14px; padding: 9px; font-family: 'Orbitron', sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 1.8px; color: #5c4a7d; cursor: pointer; }
 .foot { text-align: center; margin-top: 12px; font-family: 'Orbitron', sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 2.5px; color: #3a2a55; }
-
-/* TẢI CẤU HÌNH & THÔNG TIN SERVER */
-.config-section {
-    margin-top: 15px; padding: 15px; border-radius: 12px;
-    background: rgba(0, 150, 255, 0.05); border: 1px dashed rgba(34, 211, 238, 0.4);
-}
+.config-section { margin-top: 15px; padding: 15px; border-radius: 12px; background: rgba(0, 150, 255, 0.05); border: 1px dashed rgba(34, 211, 238, 0.4); }
 .server-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 11px; }
 .server-info div { display: flex; flex-direction: column; gap: 3px; }
 .server-info .label { color: #5c4a7d; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
 .server-info .value { color: #22d3ee; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
-
-.download-btn {
-    width: 100%; padding: 14px; border-radius: 10px;
-    background: rgba(34, 211, 238, 0.15); border: 1.5px solid #22d3ee; color: #22d3ee;
-    font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900;
-    letter-spacing: 1.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: all 0.2s;
-}
+.download-btn { width: 100%; padding: 14px; border-radius: 10px; background: rgba(34, 211, 238, 0.15); border: 1.5px solid #22d3ee; color: #22d3ee; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 1.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
 .download-btn:hover { background: rgba(34, 211, 238, 0.25); transform: translateY(-1px); }
 .download-btn i { font-size: 14px; }
 .config-status { font-size: 10px; text-align: center; margin-top: 8px; color: #22d3ee; display: none; }
-
 .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(24px); background: rgba(10, 4, 26, 0.96); border: 1px solid rgba(168, 85, 247, 0.6); color: #e9d5ff; padding: 13px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; opacity: 0; transition: all 0.35s; pointer-events: none; z-index: 999; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
-
 <div class="app-frame">
     <div class="top-bar">
         <div class="brand">
@@ -171,24 +119,15 @@ body::after {
         <div class="top-badge"><i class="fas fa-crown"></i> PREMIUM</div>
     </div>
 
-    <!-- SCREEN 1: ACTIVATION -->
     <div class="screen active" id="screenActivate">
         <div class="activation-wrap">
             <div class="key-emblem">
-                <div class="ring"></div>
-                <div class="ring"></div>
-                <div class="core"><i class="fas fa-key"></i></div>
+                <div class="ring"></div><div class="ring"></div><div class="core"><i class="fas fa-key"></i></div>
             </div>
-
             <h2>ACTIVATE KEY</h2>
             <div class="en-line">Kích Hoạt Key VIP</div>
-
-            <button class="getkey-btn" id="getKeyBtn">
-                <i class="fas fa-gift"></i> GET FREE KEY
-            </button>
-
+            <button class="getkey-btn" id="getKeyBtn"><i class="fas fa-gift"></i> GET FREE KEY</button>
             <div class="divider-or">HOẶC / OR</div>
-
             <div class="key-field">
                 <label><i class="fas fa-lock"></i> ENTER KEY</label>
                 <div class="key-box">
@@ -196,11 +135,7 @@ body::after {
                     <input type="text" id="keyInput" placeholder="VIP-XXXX-XXXX-XXXX" maxlength="32" autocomplete="off">
                 </div>
             </div>
-
-            <button class="activate-btn" id="activateBtn">
-                <i class="fas fa-bolt"></i> ACTIVATE NOW
-            </button>
-
+            <button class="activate-btn" id="activateBtn"><i class="fas fa-bolt"></i> ACTIVATE</button>
             <div class="key-result" id="keyResult">
                 <div class="result-label">✓ YOUR KEY</div>
                 <div class="result-key" id="resultKey">---</div>
@@ -209,114 +144,53 @@ body::after {
         </div>
     </div>
 
-    <!-- SCREEN 2: MAIN -->
     <div class="screen" id="screenMain">
         <div class="main-wrap">
-            <div class="key-strip">
-                <i class="fas fa-check-circle"></i>
-                <span>KEY VIP ACTIVATED · PREMIUM ACTIVE</span>
-            </div>
-
+            <div class="key-strip"><i class="fas fa-check-circle"></i><span>KEY VIP ACTIVATED · PREMIUM ACTIVE</span></div>
             <div class="hud-conn">
-                <div class="hud-left">
-                    <div class="hud-dot"></div>
-                    <div>
-                        <h3>CONNECTED</h3>
-                        <p>Proxy: Singapore VIP</p>
-                    </div>
-                </div>
+                <div class="hud-left"><div class="hud-dot"></div><div><h3>CONNECTED</h3><p>Proxy: Singapore VIP</p></div></div>
                 <div class="hud-ping"><i class="fas fa-bolt"></i> 24 MS</div>
             </div>
-
-            <div class="sec-label">
-                <div class="bar"></div>
-                <h2>AIM ASSIST</h2>
-                <div class="line"></div>
-            </div>
-
-            <!-- Aim Bot -->
+            <div class="sec-label"><div class="bar"></div><h2>AIM ASSIST</h2><div class="line"></div></div>
             <div class="feat-row" id="rowAimbot">
                 <div class="feat-ico"><i class="fas fa-robot"></i></div>
-                <div class="feat-txt">
-                    <div class="vi">AIM BOT</div>
-                    <div class="en">AUTO AIM</div>
-                    <div class="desc">Tự động ngắm bắn</div>
-                </div>
-                <label class="hud-switch">
-                    <input type="checkbox" id="tgAimbot"><span class="track"></span><span class="knob"></span>
-                </label>
+                <div class="feat-txt"><div class="vi">AIM BOT</div><div class="en">AUTO AIM</div><div class="desc">Tự động ngắm bắn</div></div>
+                <label class="hud-switch"><input type="checkbox" id="tgAimbot"><span class="track"></span><span class="knob"></span></label>
             </div>
-
-            <!-- Aim Lock -->
             <div class="feat-row" id="rowAimlock">
                 <div class="feat-ico"><i class="fas fa-lock"></i></div>
-                <div class="feat-txt">
-                    <div class="vi">AIM LOCK</div>
-                    <div class="en">TARGET LOCK</div>
-                    <div class="desc">Khóa mục tiêu</div>
-                </div>
-                <label class="hud-switch">
-                    <input type="checkbox" id="tgAimlock"><span class="track"></span><span class="knob"></span>
-                </label>
+                <div class="feat-txt"><div class="vi">AIM LOCK</div><div class="en">TARGET LOCK</div><div class="desc">Khóa mục tiêu</div></div>
+                <label class="hud-switch"><input type="checkbox" id="tgAimlock"><span class="track"></span><span class="knob"></span></label>
             </div>
-
-            <!-- Aim Neck -->
             <div class="feat-row" id="rowAimneck">
                 <div class="feat-ico"><i class="fas fa-bullseye"></i></div>
-                <div class="feat-txt">
-                    <div class="vi">AIM NECK</div>
-                    <div class="en">NECK SHOT</div>
-                    <div class="desc">Ngắm cổ / Head-neck</div>
-                </div>
-                <label class="hud-switch">
-                    <input type="checkbox" id="tgAimneck"><span class="track"></span><span class="knob"></span>
-                </label>
+                <div class="feat-txt"><div class="vi">AIM NECK</div><div class="en">NECK SHOT</div><div class="desc">Ngắm cổ / Head-neck</div></div>
+                <label class="hud-switch"><input type="checkbox" id="tgAimneck"><span class="track"></span><span class="knob"></span></label>
             </div>
-
-            <!-- SPEED BOOST (CHẠY NHANH) -->
             <div class="feat-row" id="rowSpeed">
                 <div class="feat-ico"><i class="fas fa-running"></i></div>
-                <div class="feat-txt">
-                    <div class="vi">SPEED BOOST</div>
-                    <div class="en">FAST RUN</div>
-                    <div class="desc">Chạy nhanh / Tăng tốc</div>
-                </div>
-                <label class="hud-switch">
-                    <input type="checkbox" id="tgSpeed"><span class="track"></span><span class="knob"></span>
-                </label>
+                <div class="feat-txt"><div class="vi">SPEED BOOST</div><div class="en">FAST RUN</div><div class="desc">Chạy nhanh / Tăng tốc</div></div>
+                <label class="hud-switch"><input type="checkbox" id="tgSpeed"><span class="track"></span><span class="knob"></span></label>
             </div>
-
             <div class="action-row">
                 <button class="btn-connect" id="connectBtn"><i class="fas fa-bolt"></i> CONNECT VIP</button>
                 <button class="btn-icon" id="settingsBtn"><i class="fas fa-sliders-h"></i></button>
             </div>
-
-            <!-- PHẦN TẢI CẤU HÌNH TỪ SERVER -->
             <div class="config-section">
                 <div class="server-info">
-                    <div>
-                        <span class="label">Máy chủ (Server)</span>
-                        <span class="value">SAMM-VIP-01</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <span class="label">Tài khoản (Account)</span>
-                        <span class="value">VIP-PRO</span>
-                    </div>
+                    <div><span class="label">Máy chủ (Server)</span><span class="value">SAMM-VIP-6767</span></div>
+                    <div style="text-align: right;"><span class="label">Tài khoản (Account)</span><span class="value">VIP-PRO</span></div>
                 </div>
-                <button class="download-btn" id="downloadConfigBtn">
+                <!-- NÚT TẢI CẤU HÌNH TRỰC TIẾP TỪ SERVER -->
+                <a href="/api/download-config" class="download-btn" id="downloadConfigBtn" style="text-decoration: none;">
                     <i class="fas fa-download"></i> TẢI CẤU HÌNH / GET CONFIG
-                </button>
-                <div class="config-status" id="configStatus">Đã lấy cấu hình thành công!</div>
+                </a>
             </div>
-
-            <div class="logout-line" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> LOGOUT KEY
-            </div>
+            <div class="logout-line" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> LOGOUT KEY</div>
             <div class="foot"><i class="fas fa-shield-alt"></i> BẢO MẬT TỐI ĐA · TỐC ĐỘ VIP</div>
         </div>
     </div>
 </div>
-
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg"></span></div>
 
 <script>
@@ -341,7 +215,6 @@ body::after {
         return id;
     }
 
-    // LẤY KEY
     document.getElementById('getKeyBtn').addEventListener('click', async function(){
         this.disabled = true; this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LOADING...';
         try {
@@ -360,7 +233,6 @@ body::after {
         this.disabled = false; this.innerHTML = '<i class="fas fa-gift"></i> GET FREE KEY';
     });
 
-    // KÍCH HOẠT KEY
     document.getElementById('activateBtn').addEventListener('click', async function(){
         const val = document.getElementById('keyInput').value.trim();
         if(!val) return toast('Vui lòng nhập Key!', true);
@@ -380,10 +252,9 @@ body::after {
                 }, 500);
             } else toast(data.message, true);
         } catch(e){ toast('Lỗi kết nối!', true); }
-        this.disabled = false; this.innerHTML = '<i class="fas fa-bolt"></i> ACTIVATE NOW';
+        this.disabled = false; this.innerHTML = '<i class="fas fa-bolt"></i> ACTIVATE';
     });
 
-    // TOGGLES
     function bindToggle(id, rowId, name){
         document.getElementById(id).addEventListener('change', function(){
             document.getElementById(rowId).classList.toggle('on', this.checked);
@@ -395,29 +266,6 @@ body::after {
     bindToggle('tgAimneck', 'rowAimneck', 'AIM NECK');
     bindToggle('tgSpeed', 'rowSpeed', 'SPEED BOOST');
 
-    // TẢI CẤU HÌNH TỪ SERVER
-    document.getElementById('downloadConfigBtn').addEventListener('click', async function(){
-        this.disabled = true; this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG TẢI...';
-        try {
-            const res = await fetch(`${API_BASE}/api/config`);
-            const data = await res.json();
-            
-            if(data.success) {
-                const configValue = data.config.proxypin || "Cấu hình mặc định";
-                document.getElementById('configStatus').style.display = 'block';
-                document.getElementById('configStatus').textContent = "Đã tải cấu hình thành công!";
-                toast('✅ Đã tải cấu hình từ Server!');
-                
-                // (Tùy chọn) Lưu cấu hình vào bộ nhớ máy
-                localStorage.setItem('proxyvip_config', configValue);
-            } else {
-                toast('Lỗi khi tải cấu hình!', true);
-            }
-        } catch(e){ toast('Lỗi kết nối Server!', true); }
-        this.disabled = false; this.innerHTML = '<i class="fas fa-download"></i> TẢI CẤU HÌNH / GET CONFIG';
-    });
-
-    // CÁC NÚT KHÁC
     document.getElementById('connectBtn').addEventListener('click', () => {
         toast('⚡ Đang kết nối...');
         setTimeout(() => toast('✅ Kết nối thành công (24ms)'), 800);
@@ -430,7 +278,6 @@ body::after {
         }
     });
 
-    // Auto login nếu đã kích hoạt
     if(localStorage.getItem('proxyvip_active') === 'true') {
         screenActivate.classList.remove('active');
         screenMain.classList.add('active');

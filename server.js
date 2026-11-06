@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 6767; // ĐÃ ĐỔI CỔNG THÀNH 6767
+const PORT = process.env.PORT || 6767; // Cổng 6767
 
 const ADMIN_PASSWORD = "admin123"; 
 app.use(cors());
@@ -84,17 +84,19 @@ app.post('/api/verify-key', (req, res) => {
 });
 
 // ============ API TẢI FILE CẤU HÌNH (.mobileconfig) ============
-// Tạo một route để tải file cấu hình trực tiếp từ server của bạn
+// Code này sẽ tìm file proxypin.mobileconfig trong thư mục public và gửi về máy người dùng
 app.get('/api/download-config', (req, res) => {
     const filePath = path.join(__dirname, 'public', 'proxypin.mobileconfig');
     
     if (fs.existsSync(filePath)) {
-        // Đặt header để trình duyệt hiểu đây là file cần tải về
+        // Cấu hình header để trình duyệt tự động tải file xuống
         res.setHeader('Content-Disposition', 'attachment; filename="proxypin.mobileconfig"');
         res.setHeader('Content-Type', 'application/x-apple-aspen-config');
         res.sendFile(filePath);
     } else {
-        res.status(404).send('Không tìm thấy file cấu hình trên Server.');
+        // Nếu lỡ file bị thiếu, tự động chuyển hướng sang MediaFire
+        console.log("Không tìm thấy file trong public, chuyển hướng sang MediaFire...");
+        res.redirect('https://www.mediafire.com/file/9gn9dpu7a19wrab/proxypin.mobileconfig/file');
     }
 });
 
@@ -116,7 +118,6 @@ app.post('/api/admin/create', checkAdmin, (req, res) => {
     if (count > 100) return res.status(400).json({ success: false, message: 'Tối đa 100 key/lần' });
 
     const db = loadDB();
-    const newKeys = [];
     const now = Date.now();
     
     let expiresAt = null;
@@ -128,7 +129,6 @@ app.post('/api/admin/create', checkAdmin, (req, res) => {
     for (let i = 0; i < count; i++) {
         const newKey = { key: generateKey(), deviceId: "ADMIN_CREATED", createdAt: now, expiresAt: expiresAt, active: true, usedCount: 0 };
         db.keys.push(newKey);
-        newKeys.push(newKey.key);
     }
     saveDB(db);
     res.json({ success: true, message: `Đã tạo ${count} key (${type})` });
@@ -144,6 +144,7 @@ app.delete('/api/admin/delete/:key', checkAdmin, (req, res) => {
 });
 
 // ============ SERVE FRONTEND ============
+// Phục vụ các file giao diện trong thư mục public
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('*', (req, res) => {

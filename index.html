@@ -1,407 +1,620 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMM X MODZ | Premium Cyber Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #00ffcc; --primary-dark: #00b38f; --secondary: #ff0055;
-            --bg-dark: #030305; --glass-bg: rgba(10, 10, 15, 0.75); --glass-border: rgba(0, 255, 204, 0.3);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Roboto', sans-serif; color: #fff; background-color: var(--bg-dark); 
-            min-height: 100vh; overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 255, 204, 0.05), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.05), transparent 25%);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SAMM X MOD - Client</title>
+  <style>
+    /* Import Font */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
-        /* Video nền sáng bóng */
-        #bg-video { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: -2; opacity: 1; 
-            filter: brightness(1.2) contrast(1.1); pointer-events: none;
-        }
-        .overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(to bottom, rgba(3,3,5,0.2), rgba(3,3,5,0.7)); z-index: -1; 
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* HIỆU ỨNG NHÃN HOT */
-        @keyframes pulseHot {
-            0% { transform: scale(1); box-shadow: 0 0 10px rgba(255,0,85,0.8); }
-            50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255,0,85,1); }
-            100% { transform: scale(1); box-shadow: 0 0 10px rgba(255,0,85,0.8); }
-        }
+    body {
+      background-color: #030308;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+    }
 
-        /* MÀN HÌNH ĐĂNG NHẬP */
-        #authScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(10px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999; transition: opacity 0.5s ease;
-        }
-        .auth-box {
-            background: linear-gradient(145deg, rgba(20,20,30,0.95), rgba(5,5,10,0.95));
-            border: 1px solid var(--primary); padding: 40px; border-radius: 20px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 0 50px rgba(0, 255, 204, 0.2);
-        }
-        .auth-box .logo { font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px var(--primary); margin-bottom: 20px; letter-spacing: 2px; }
-        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid #333; }
-        .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; color: #666; transition: 0.3s; }
-        .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-        .auth-box input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
-        .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0,255,204,0.2); }
-        .auth-box button { width: 100%; padding: 15px; background: var(--primary); border: none; color: #000; font-weight: 900; border-radius: 8px; cursor: pointer; margin-top: 20px; font-family: 'Orbitron'; transition: 0.3s; }
-        .auth-box button:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
-        .auth-error { color: #ff4444; font-size: 14px; margin-top: 10px; display: none; }
+    /* Khung chứa chính */
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 850px;
+      background: rgba(5, 8, 15, 0.95);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(0, 255, 255, 0.05);
+    }
 
-        /* MÀN HÌNH CHÍNH */
-        #mainApp { display: none; opacity: 0; transition: opacity 0.5s ease; }
-        header { background: rgba(3, 3, 5, 0.7); backdrop-filter: blur(15px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 5px 30px rgba(0, 255, 204, 0.15); }
-        .logo-header { font-family: 'Orbitron'; font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #fff, var(--primary), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 8px var(--primary)); }
-        .auth-buttons { display: flex; gap: 15px; }
-        .auth-buttons button { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px 20px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron'; font-weight: 700; transition: 0.4s; }
-        .auth-buttons button:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+    /* Lưới nền (Grid Background) */
+    .app-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        .container { padding: 40px 5%; max-width: 1400px; margin: 0 auto; }
-        h2 { font-family: 'Orbitron'; font-size: 24px; margin-top: 60px; margin-bottom: 30px; display: flex; align-items: center; }
-        h2::before { content: ''; display: inline-block; width: 8px; height: 30px; background: var(--primary); margin-right: 15px; box-shadow: 0 0 20px var(--primary); }
+    /* ================= MÀN HÌNH 1: XÁC THỰC (AUTH) ================= */
+    #auth-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      z-index: 10;
+      background: rgba(3, 3, 8, 0.95);
+      transition: all 0.5s ease;
+    }
 
-        /* KHUNG ẢNH TO */
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
-        .file-card { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; text-align: center; backdrop-filter: blur(15px); transition: 0.5s; opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s forwards; overflow: hidden; }
-        .file-card:hover { transform: translateY(-15px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2); border-color: var(--primary); }
-        
-        .img-wrapper { width: 100%; height: 280px; overflow: hidden; border-bottom: 2px solid var(--primary); background: #111; position: relative; cursor: zoom-in; }
-        .file-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .file-card:hover .file-img { transform: scale(1.1); }
-        
-        .file-info { padding: 25px; }
-        .file-card h3 { font-family: 'Orbitron'; font-size: 22px; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--primary); }
-        .file-card p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
-        .download-count { display: inline-block; background: rgba(255,255,255,0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; font-weight: bold; }
-        .btn-download { display: inline-block; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 900; transition: 0.4s; cursor: pointer; font-size: 15px; }
-        .btn-download:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+    .radar-icon {
+      width: 120px;
+      height: 120px;
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 50%;
+      position: relative;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.1) inset;
+    }
+    
+    .radar-icon::before {
+      content: '';
+      position: absolute;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border-top: 2px solid #00ffff;
+      animation: spin 2s linear infinite;
+    }
+    
+    .radar-icon::after {
+      content: '🔒';
+      font-size: 40px;
+      text-shadow: 0 0 20px #00ffff;
+    }
 
-        .empty-state { grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--glass-bg); border: 1px dashed var(--primary); border-radius: 20px; color: var(--primary); font-family: 'Orbitron'; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-        .zalo-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 20px; border-radius: 15px; text-decoration: none; display: flex; align-items: center; gap: 15px; transition: 0.4s; }
-        .zalo-box:hover { background: rgba(0, 255, 204, 0.15); transform: translateY(-5px); border-color: var(--primary); }
-        .zalo-icon { width: 40px; height: 40px; background: #fff; border-radius: 50%; color: #0068ff; display: flex; justify-content: center; align-items: center; font-weight: 900; font-family: 'Orbitron'; font-size: 18px; }
-        .vip { border-color: #ff9800; background: rgba(255, 152, 0, 0.05); } .vip .zalo-icon { color: #ff9800; } .vip:hover { background: rgba(255, 152, 0, 0.15); border-color: #ff9800; box-shadow: 0 0 20px rgba(255, 152, 0, 0.3); }
+    .auth-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      color: #fff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+      margin-bottom: 10px;
+      text-align: center;
+    }
 
-        .glass-panel { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); }
-        .info-panel p { margin-bottom: 15px; font-size: 16px; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .info-panel strong { color: var(--primary); font-family: 'Orbitron'; }
+    .auth-subtitle {
+      font-size: 12px;
+      color: #00ffff;
+      letter-spacing: 3px;
+      margin-bottom: 40px;
+      text-transform: uppercase;
+    }
 
-        /* POPUP XEM ẢNH TO */
-        .image-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .image-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 30px var(--primary); }
-        .close-image { position: absolute; top: 20px; right: 30px; font-size: 40px; color: #fff; cursor: pointer; }
+    .input-group {
+      width: 100%;
+      position: relative;
+      margin-bottom: 25px;
+    }
 
-        /* Chat Bot */
-        .chat-bot-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
-        .chat-icon { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); width: 65px; height: 65px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); font-size: 30px; transition: 0.4s; }
-        .chat-icon:hover { transform: scale(1.1) rotate(15deg); }
-        .chat-window { display: none; position: absolute; bottom: 85px; right: 0; width: 350px; background: rgba(5, 5, 10, 0.95); border: 1px solid var(--primary); border-radius: 20px; overflow: hidden; }
-        .chat-header { background: var(--primary); color: #000; padding: 15px; font-weight: 900; font-family: 'Orbitron'; text-align: center; }
-        .chat-body { height: 300px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .chat-msg { padding: 12px 16px; border-radius: 15px; font-size: 14px; max-width: 85%; line-height: 1.4; }
-        .chat-msg.bot { background: rgba(0, 255, 204, 0.1); color: var(--primary); border: 1px solid var(--primary); align-self: flex-start; border-bottom-left-radius: 0;}
-        .chat-msg.user { align-self: flex-end; background: rgba(255, 255, 255, 0.1); border-bottom-right-radius: 0;}
-        .chat-input-area { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
-        .chat-input-area input { flex: 1; padding: 15px; border: none; background: transparent; color: white; outline: none; }
-        .chat-input-area button { background: var(--primary); color: #000; border: none; padding: 0 20px; cursor: pointer; font-weight: 900; }
+    .input-group input {
+      width: 100%;
+      background: rgba(0, 255, 255, 0.05);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      padding: 18px;
+      color: #fff;
+      font-size: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 3px;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s;
+    }
 
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    .input-group input:focus {
+      background: rgba(0, 255, 255, 0.1);
+      border-color: #00ffff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    .input-group input::placeholder {
+      color: rgba(0, 255, 255, 0.3);
+      letter-spacing: 1px;
+      font-size: 14px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 18px;
+      background: transparent;
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: #00ffff;
+      transition: all 0.3s;
+      z-index: -1;
+    }
+
+    .auth-btn:hover::before, .auth-btn:active::before {
+      left: 0;
+    }
+
+    .auth-btn:hover, .auth-btn:active {
+      color: #000;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    }
+
+    .error-msg {
+      color: #ff0080;
+      font-size: 13px;
+      margin-top: 20px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      letter-spacing: 1px;
+    }
+    .error-msg.show { opacity: 1; text-shadow: 0 0 10px #ff0080; }
+
+    /* Loading Overlay */
+    #loading-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(0, 255, 255, 0.1);
+      border-top: 3px solid #00ffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    .loading-text {
+      color: #00ffff;
+      letter-spacing: 2px;
+      animation: blink 1s infinite alternate;
+    }
+
+    /* ================= MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN ================= */
+    #main-screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      z-index: 5;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header */
+    .header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+      background: linear-gradient(180deg, rgba(0, 255, 255, 0.05) 0%, transparent 100%);
+    }
+
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .logo-sub {
+      font-size: 10px;
+      color: #ff0080;
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid #00ffff;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #00ffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      background: #00ffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00ffff;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    /* Khu vực nội dung */
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 12px;
+      color: #00ffff;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Các nút tính năng (Mod Menu) */
+    .feature-btn {
+      background: rgba(0, 255, 255, 0.03);
+      border: 1px solid rgba(0, 255, 255, 0.1);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Hiệu ứng quét khi active */
+    .feature-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+      transition: all 0.4s;
+    }
+
+    .feature-btn.active::before {
+      left: 100%;
+    }
+
+    .feature-btn.active {
+      border-color: #00ffff;
+      background: rgba(0, 255, 255, 0.08);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1) inset;
+    }
+
+    .feature-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .feature-name {
+      font-size: 15px;
+      font-weight: bold;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    
+    .feature-desc {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 1px;
+    }
+
+    .feature-btn.active .feature-desc {
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+    }
+
+    /* Công tắc (Switch) */
+    .switch {
+      width: 46px;
+      height: 24px;
+      background: #111;
+      border: 1px solid #333;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: #444;
+      transition: 0.3s;
+    }
+
+    .feature-btn.active .switch {
+      background: rgba(0, 255, 255, 0.2);
+      border-color: #00ffff;
+    }
+
+    .feature-btn.active .switch::after {
+      transform: translateX(22px);
+      background: #00ffff;
+      box-shadow: 0 0 15px #00ffff;
+    }
+
+    /* Bảng Log (Console) */
+    .console-box {
+      background: #000;
+      border: 1px solid #222;
+      padding: 15px;
+      height: 140px;
+      overflow-y: auto;
+      font-size: 11px;
+      color: #666;
+      margin-top: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8) inset;
+    }
+
+    .log-line { margin-bottom: 5px; }
+    .log-success { color: #00ffff; }
+    .log-info { color: #fff; }
+    .log-error { color: #ff0080; }
+
+    /* Thanh chân trang */
+    .footer {
+      padding: 15px;
+      text-align: center;
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 1px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
 </head>
 <body>
-    <video autoplay loop muted playsinline id="bg-video">
-        <source src="https://files.catbox.moe/yd6xhn.mp4" type="video/mp4">
-    </video>
-    <div class="overlay"></div>
 
-    <!-- POPUP XEM ẢNH -->
-    <div class="image-modal" id="imageModal" onclick="closeImage()">
-        <span class="close-image">&times;</span>
-        <img id="modalImage" src="" alt="Zoom Image">
+  <div class="app-container">
+    
+    <!-- ================= MÀN HÌNH 1: XÁC THỰC KEY ================= -->
+    <div id="auth-screen">
+      <div class="radar-icon"></div>
+      <div class="auth-title">SAMM X MOD</div>
+      <div class="auth-subtitle">SERVER AUTHENTICATION</div>
+      
+      <div class="input-group">
+        <input type="text" id="keyInput" placeholder="NHẬP LICENSE KEY..." autocomplete="off">
+      </div>
+      
+      <button class="auth-btn" onclick="verifyKey()">KẾT NỐI HỆ THỐNG</button>
+      
+      <div class="error-msg" id="errorMsg">SAI KEY HOẶC LỖI KẾT NỐI!</div>
     </div>
 
-    <!-- MÀN HÌNH ĐĂNG NHẬP -->
-    <div id="authScreen">
-        <div class="auth-box">
-            <div class="logo">SAMM X MODZ</div>
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">ĐĂNG NHẬP</div>
-                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">ĐĂNG KÝ</div>
-            </div>
-            <input type="text" id="username" placeholder="Tài khoản">
-            <input type="password" id="password" placeholder="Mật khẩu">
-            <div class="auth-error" id="authError">Lỗi kết nối!</div>
-            <button onclick="submitAuth()" id="authBtn">VÀO SHOP NGAY</button>
-        </div>
+    <!-- ================= MÀN HÌNH LOADING ================= -->
+    <div id="loading-screen">
+      <div class="loader"></div>
+      <div class="loading-text">ĐANG XÁC THỰC...</div>
     </div>
 
-    <!-- MÀN HÌNH CHÍNH -->
-    <div id="mainApp">
-        <header>
-            <div class="logo-header">SAMM X MODZ</div>
-            <div class="auth-buttons">
-                <button onclick="logoutUser()" style="border-color: #ff4444; color: #ff4444;">Đăng Xuất</button>
-            </div>
-        </header>
+    <!-- ================= MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN ================= -->
+    <div id="main-screen">
+      
+      <div class="header">
+        <div class="logo-container">
+          <div class="logo-text">SAMM X MOD</div>
+          <div class="logo-sub">v2.0 // ACTIVE</div>
+        </div>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          SECURED
+        </div>
+      </div>
 
-        <div class="container">
-            <h2>KHO TẢI GAME</h2>
-            <div class="file-grid" id="fileContainer">
-                <div class="empty-state">⏳ Đang tải dữ liệu...</div>
-            </div>
-
-            <h2>KHU VỰC BOX ZALO</h2>
-            <div class="box-grid">
-                <a href="https://zalo.me/g/wqnmgz1abybxpub2p9w9" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 1</a>
-                <a href="https://zalo.me/g/pptuksfrskl7sotde7am" target="_blank" class="zalo-box"><div class="zalo-icon">Z</div> Box 2</a>
-                <a href="https://zalo.me/g/s7dslaz2mkhxgn9dfntj" target="_blank" class="zalo-box vip"><div class="zalo-icon">V</div> BOX VIP SAMM X MODZ</a>
-            </div>
-
-            <h2>THÔNG TIN TÀI KHOẢN</h2>
-            <div class="glass-panel info-panel">
-                <p><span>Tên đăng nhập:</span> <strong id="displayUsername">...</strong></p>
-                <p><span>Trạng thái:</span> <strong style="color: var(--primary);">Đã đăng nhập</strong></p>
-                <p><span>Hỗ trợ:</span> <strong>ZALO 0355757211</strong></p>
-            </div>
+      <div class="content">
+        <div class="section-title">
+          <span>⚡</span> TÍNH NĂNG HỆ THỐNG
         </div>
 
-        <!-- CHAT BOT -->
-        <div class="chat-bot-container">
-            <div class="chat-icon" onclick="toggleChat()">🤖</div>
-            <div class="chat-window" id="chatWindow">
-                <div class="chat-header">BOT SAMM AI</div>
-                <div class="chat-body" id="chatBody">
-                    <div class="chat-msg bot">Xin chào! Mình là Bot tự động của Shop. Bạn cần tư vấn gì cứ nhắn nhé!</div>
-                </div>
-                <div class="chat-input-area">
-                    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="handleChat(event)">
-                    <button onclick="sendChat()">Gửi</button>
-                </div>
-            </div>
+        <!-- Các tính năng -->
+        <div class="feature-btn" onclick="toggleFeature(this)">
+          <div class="feature-info">
+            <div class="feature-name">AIMBOT CORE</div>
+            <div class="feature-desc">Hệ thống khóa mục tiêu</div>
+          </div>
+          <div class="switch"></div>
         </div>
+
+        <div class="feature-btn" onclick="toggleFeature(this)">
+          <div class="feature-info">
+            <div class="feature-name">ESP / WALLHACK</div>
+            <div class="feature-desc">Hiển thị xuyên vật thể</div>
+          </div>
+          <div class="switch"></div>
+        </div>
+
+        <div class="feature-btn" onclick="toggleFeature(this)">
+          <div class="feature-info">
+            <div class="feature-name">SPEED HACK</div>
+            <div class="feature-desc">Tăng tốc độ di chuyển</div>
+          </div>
+          <div class="switch"></div>
+        </div>
+
+        <div class="feature-btn" onclick="toggleFeature(this)">
+          <div class="feature-info">
+            <div class="feature-name">ANTI-BAN BYPASS</div>
+            <div class="feature-desc">Chống phát hiện hệ thống</div>
+          </div>
+          <div class="switch"></div>
+        </div>
+
+        <div class="section-title" style="margin-top: 25px;">
+          <span>💻</span> SYSTEM LOG
+        </div>
+        
+        <div class="console-box" id="console">
+          <div class="log-line log-success">> Kết nối Server thành công.</div>
+          <div class="log-line log-info">> Chào mừng bạn đến với SAMM X MOD.</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        © 2026 SAMM X MOD // INTERNAL USE ONLY
+      </div>
+
     </div>
 
-    <script>
-        const API_URL = 'https://samxmodz-api.onrender.com'; // SỬA LINK NÀY THÀNH LINK RENDER CỦA BẠN
-        let isLoginMode = true;
-        let currentUser = null;
+  </div>
 
-        function switchAuthTab(mode) {
-            isLoginMode = (mode === 'login');
-            document.getElementById('tabLogin').classList.toggle('active', isLoginMode);
-            document.getElementById('tabRegister').classList.toggle('active', !isLoginMode);
-            document.getElementById('authBtn').innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
-            document.getElementById('authError').style.display = 'none';
-        }
+  <script>
+    // Đổi thành tên miền của bạn nếu đưa lên host
+    const API_URL = 'http://localhost:10000'; 
 
-        async function submitAuth() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('authError');
-            
-            if (!username || !password) {
-                errorDiv.innerText = "Vui lòng nhập đủ Tài khoản và Mật khẩu!";
-                errorDiv.style.display = 'block';
-                return;
-            }
+    async function verifyKey() {
+      const input = document.getElementById('keyInput').value.trim().toUpperCase();
+      const errorMsg = document.getElementById('errorMsg');
+      const authScreen = document.getElementById('auth-screen');
+      const mainScreen = document.getElementById('main-screen');
+      const loadingScreen = document.getElementById('loading-screen');
 
-            const btn = document.getElementById('authBtn');
-            btn.innerText = "ĐANG KẾT NỐI..."; 
-            btn.disabled = true;
-            errorDiv.style.display = 'none';
-            
-            try {
-                const endpoint = isLoginMode ? '/api/login' : '/api/register';
-                const res = await fetch(API_URL + endpoint, {
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await res.json();
-                
-                if (res.ok) {
-                    if (isLoginMode) {
-                        showMainApp(username);
-                    } else {
-                        alert('Đăng ký thành công! Vui lòng đăng nhập.');
-                        switchAuthTab('login');
-                        btn.innerText = "VÀO SHOP NGAY";
-                        btn.disabled = false;
-                    }
-                } else { 
-                    errorDiv.innerText = data.error;
-                    errorDiv.style.display = 'block';
-                    btn.innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
-                    btn.disabled = false;
-                }
-            } catch (error) { 
-                errorDiv.innerText = 'Server đang khởi động. Vui lòng đợi 30s và thử lại!';
-                errorDiv.style.display = 'block';
-                btn.innerText = isLoginMode ? "VÀO SHOP NGAY" : "TẠO TÀI KHOẢN";
-                btn.disabled = false;
-            }
-        }
+      if(!input) {
+        errorMsg.innerText = "VUI LÒNG NHẬP KEY!";
+        errorMsg.classList.add('show');
+        return;
+      }
 
-        function showMainApp(username) {
-            currentUser = username;
-            const authScreen = document.getElementById('authScreen');
-            authScreen.style.opacity = '0';
-            setTimeout(() => { authScreen.style.display = 'none'; }, 500);
+      // Hiển thị màn hình chờ
+      loadingScreen.style.display = 'flex';
+      errorMsg.classList.remove('show');
 
-            const mainApp = document.getElementById('mainApp');
-            mainApp.style.display = 'block';
-            setTimeout(() => { mainApp.style.opacity = '1'; }, 100);
-
-            document.getElementById('displayUsername').innerText = username;
-            localStorage.setItem('samxmodz_user', username);
-
-            autoSyncFiles();
-            setInterval(autoSyncFiles, 3000); 
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('samxmodz_user'); 
-            location.reload(); 
-        }
-
-        function openImage(src) {
-            document.getElementById('modalImage').src = src;
-            document.getElementById('imageModal').style.display = 'flex';
-        }
-        function closeImage() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-
-        let lastFilesJson = "";
-        async function autoSyncFiles() {
-            try {
-                const response = await fetch(API_URL + '/api/files');
-                let files = await response.json();
-                const filesJson = JSON.stringify(files);
-                
-                if (files.length === 0 && localStorage.getItem('samxmodz_files')) {
-                    const cachedFiles = JSON.parse(localStorage.getItem('samxmodz_files'));
-                    if (cachedFiles.length > 0) files = cachedFiles;
-                } else if (files.length > 0) {
-                    localStorage.setItem('samxmodz_files', JSON.stringify(files));
-                }
-
-                const newJson = JSON.stringify(files);
-                if(newJson !== lastFilesJson) {
-                    lastFilesJson = newJson;
-                    const container = document.getElementById('fileContainer');
-                    container.innerHTML = ''; 
-
-                    if(files.length === 0) {
-                        container.innerHTML = `<div class="empty-state">📦 KHO HÀNG ĐANG TRỐNG<br><br><span style="font-size: 14px; color: #fff;">Admin chưa cập nhật file mới!</span></div>`;
-                        return;
-                    }
-
-                    files.forEach((file, index) => {
-                        const downloads = file.downloads || 0;
-                        // THÊM NHÃN HOT VÀO ĐÂY
-                        container.innerHTML += `
-                            <div class="file-card" style="--i: ${index}">
-                                <div class="img-wrapper" onclick="openImage('${file.imageUrl}')">
-                                    <div style="position: absolute; top: 10px; right: 10px; background: linear-gradient(45deg, #ff0055, #ff9800); color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: 900; font-family: 'Orbitron'; font-size: 12px; box-shadow: 0 0 10px rgba(255,0,85,0.8); z-index: 10; animation: pulseHot 1.5s infinite;">
-                                        HOT 🔥
-                                    </div>
-                                    <img src="${file.imageUrl}" alt="Game" class="file-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'">
-                                </div>
-                                <div class="file-info">
-                                    <h3>${file.title}</h3>
-                                    <p>Cập nhật bởi SAMM X MODZ</p>
-                                    <div class="download-count">🔥 Lượt tải: <span id="dl-count-${file.id || file._id}">${downloads}</span></div><br>
-                                    <button class="btn-download" onclick="downloadFile('${file.id || file._id}', '${file.fileUrl || file.link}')">TẢI XUỐNG</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-            } catch(e) { }
-        }
-
-        async function downloadFile(fileId, link) {
-            if(!currentUser) {
-                alert('Vui lòng đăng nhập để tải!');
-                return;
-            }
-            try {
-                await fetch(API_URL + '/api/files/' + fileId + '/download', { method: 'POST' });
-                const countSpan = document.getElementById('dl-count-' + fileId);
-                if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
-            } catch(e) { console.log("Lỗi đếm view"); }
-            
-            window.open(link, '_blank');
-        }
-
-        window.onload = () => {
-            const savedUser = localStorage.getItem('samxmodz_user');
-            if (savedUser) showMainApp(savedUser);
-        };
-
-        document.body.addEventListener('click', function() {
-            var video = document.getElementById('bg-video');
-            if(video && video.muted) {
-                video.muted = false; 
-                video.play().catch(e => {});
-            }
+      try {
+        const res = await fetch(`${API_URL}/api/verify-key`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: input })
         });
+        
+        // Giả lập độ trễ 1.5 giây để tạo cảm giác kết nối thực tế
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // BOT TỰ ĐỘNG TRẢ LỜI
-        function toggleChat() { 
-            var chat = document.getElementById('chatWindow'); 
-            chat.style.display = chat.style.display === 'block' ? 'none' : 'block'; 
+        const data = await res.json();
+        loadingScreen.style.display = 'none';
+
+        if (res.ok) {
+          // Đúng Key -> Vào app
+          authScreen.style.display = 'none';
+          mainScreen.style.display = 'flex';
+          
+          // Thêm log xác thực
+          addLog(`> Xác thực thành công. Hạn: ${data.key.expText}`, 'log-success');
+        } else {
+          // Sai Key hoặc hết hạn
+          errorMsg.innerText = data.error;
+          errorMsg.classList.add('show');
+          shakeInput();
         }
-        function handleChat(e) { if (e.key === 'Enter') sendChat(); }
-        function sendChat() {
-            var input = document.getElementById('chatInput');
-            var msg = input.value.trim().toLowerCase(); 
-            if(!msg) return;
+      } catch (err) {
+        loadingScreen.style.display = 'none';
+        errorMsg.innerText = "LỖI KẾT NỐI ĐẾN SERVER!";
+        errorMsg.classList.add('show');
+        shakeInput();
+      }
+    }
 
-            var body = document.getElementById('chatBody');
-            body.innerHTML += `<div class="chat-msg user">${input.value}</div>`;
-            input.value = '';
+    // Hiệu ứng rung khi sai key
+    function shakeInput() {
+      const inputGroup = document.querySelector('.input-group');
+      inputGroup.style.transform = 'translateX(-8px)';
+      setTimeout(() => inputGroup.style.transform = 'translateX(8px)', 60);
+      setTimeout(() => inputGroup.style.transform = 'translateX(-8px)', 120);
+      setTimeout(() => inputGroup.style.transform = 'translateX(8px)', 180);
+      setTimeout(() => inputGroup.style.transform = 'translateX(0)', 240);
+    }
 
-            setTimeout(() => {
-                let reply = "";
-                if (msg.includes('/start') || msg.includes('chào') || msg.includes('hello') || msg.includes('hi')) {
-                    reply = `<b>THÔNG TIN SHOP SAMM X MODZ</b><br><br>- Chuyên cung cấp File 3105, Mod Game, Hack FF.<br>- Hỗ trợ: <b>ZALO 0355757211</b><br>- Tham gia Box để nhận file mới nhất!`;
-                } else if (msg.includes('giá') || msg.includes('bao nhiêu') || msg.includes('tiền')) {
-                    reply = "Shop có nhiều gói từ Miễn phí đến VIP. Bạn vui lòng liên hệ ZALO <b>0355757211</b> để được báo giá chi tiết nhé!";
-                } else if (msg.includes('zalo') || msg.includes('liên hệ') || msg.includes('sđt')) {
-                    reply = "Số Zalo hỗ trợ của Shop là: <b>0355757211</b>. Bạn nhắn tin trực tiếp qua Zalo để được Admin hỗ trợ nhanh nhất!";
-                } else if (msg.includes('tải') || msg.includes('file') || msg.includes('game')) {
-                    reply = "Bạn hãy cuộn lên mục <b>KHO TẢI GAME</b> để xem các file mới nhất. Nếu chưa thấy file, vui lòng chờ Admin cập nhật thêm nhé!";
-                } else if (msg.includes('cảm ơn') || msg.includes('thank')) {
-                    reply = "Không có gì! Chúc bạn chơi game vui vẻ. Cần gì cứ nhắn mình nhé!";
-                } else {
-                    reply = "Mình là Bot tự động nên chưa hiểu ý này lắm. Bạn có thể hỏi về <b>Giá cả</b>, <b>Liên hệ</b>, hoặc <b>Cách tải file</b> nhé!";
-                }
-                body.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
-                body.scrollTop = body.scrollHeight;
-            }, 600);
-        }
-    </script>
+    // Nhấn Enter để đăng nhập
+    document.getElementById('keyInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') verifyKey();
+    });
+
+    // Bật/tắt tính năng
+    function toggleFeature(element) {
+      element.classList.toggle('active');
+      const name = element.querySelector('.feature-name').innerText;
+      const isActive = element.classList.contains('active');
+      
+      const msg = isActive ? `> Đã bật: ${name}` : `> Đã tắt: ${name}`;
+      const type = isActive ? 'log-success' : 'log-error';
+      addLog(msg, type);
+    }
+
+    // Ghi log
+    function addLog(message, className) {
+      const consoleBox = document.getElementById('console');
+      const line = document.createElement('div');
+      line.className = `log-line ${className}`;
+      line.innerText = message;
+      consoleBox.appendChild(line);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+  </script>
 </body>
 </html>

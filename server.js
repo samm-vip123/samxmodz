@@ -1,112 +1,135 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const multer = require('multer'); // Thư viện nhận file upload
 const path = require('path');
-const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-app.use(cors({ origin: '*', methods: ['GET', 'POST', 'DELETE', 'PUT'] }));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
-
-// Cấu hình thư mục lưu file upload
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-// Cấu hình Multer (Lưu file vào thư mục uploads)
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '-'))
-});
-const upload = multer({ storage: storage });
-
-// Cho phép truy cập file tĩnh từ thư mục uploads
-app.use('/uploads', express.static(uploadDir));
+app.use(express.static(path.join(__dirname, 'public'))); // Phục vụ file HTML
 
 // ================= KẾT NỐI DATABASE =================
-const MONGO_URI = 'mongodb+srv://admin:123456@cluster0.xxxxx.mongodb.net/samxmodz?retryWrites=true&w=majority'; // SỬA LINK NÀY
+// Thay link MongoDB của bạn vào đây
+const MONGO_URI = 'mongodb+srv://admin:123456@cluster0.xxxxx.mongodb.net/samxmodz?retryWrites=true&w=majority'; 
+
 let isDbConnected = false;
-
 mongoose.connect(MONGO_URI)
-    .then(() => { console.log('✅ Đã kết nối Database!'); isDbConnected = true; })
-    .catch(err => console.log('❌ Lỗi Database:', err.message, '- Sẽ dùng RAM!'));
+    .then(() => { console.log('✅ Đã kết nối MongoDB!'); isDbConnected = true; })
+    .catch(err => console.log('❌ Lỗi Database:', err.message, '- Sẽ dùng RAM tạm thời!'));
 
-// Cấu trúc Data
-const User = mongoose.model('User', new mongoose.Schema({ username: String, password: String }));
-const FileData = mongoose.model('FileData', new mongoose.Schema({ 
-    title: String, imageUrl: String, fileUrl: String, downloads: { type: Number, default: 0 } 
-}));
-let ramUsers = []; let ramFiles = [];
+// ================= CẤU TRÚC DATA =================
+// Cấu trúc Key: code, expText (hiển thị), expireAt (thời gian thực), createdAt
+const KeySchema = new mongoose.Schema({ 
+    code: { type: String, unique: true, required: true }, 
+    expText: String, 
+    expireAt: { type: Number, default: -1 }, // -1 là vĩnh viễn
+    createdAt: { type: Date, default: Date.now }
+});
+const Key = mongoose.model('Key', KeySchema);
 
-// ================= API USER =================
-app.post('/api/register', async (req, res) => {
+// Mảng lưu RAM nếu mất kết nối DB
+let ramKeys = [];
+
+// ================= API ADMIN (TẠO KEY) =================
+app.post('/api/admin/generate-key', async (req, res) => {
     try {
-        const { username, password } = req.body;
-        if (isDbConnected) {
-            if (await User.findOne({ username })) return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
-            await User.create({ username, password });
+        const { durationType, customDays, customHours } = req.body;
+        let expText = '';
+        let expireAt = -1; // Mặc định vĩnh viễn
+        let now = new Date();
+
+        // Tính toán thời gian
+        if (durationType === 'custom') {
+            let d = parseInt(customDays) || 0;
+            let h = parseInt(customHours) || 0;
+            now.setDate(now.getDate() + d);
+            now.setHours(now.getHours() + h);
+            expireAt = now.getTime();
+            expText = `${d} Ngày ${h} Giờ`;
         } else {
-            if (ramUsers.find(u => u.username === username)) return res.status(400).json({ error: 'Tài khoản đã tồn tại' });
-            ramUsers.push({ username, password });
-        }
-        res.json({ message: 'Đăng ký thành công!' });
-    } catch (e) { res.status(500).json({ error: 'Lỗi Server' }); }
-});
-
-app.post('/api/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = isDbConnected ? await User.findOne({ username, password }) : ramUsers.find(u => u.username === username && u.password === password);
-        if (user) res.json({ message: 'Đăng nhập thành công!', user: { username: user.username } });
-        else res.status(401).json({ error: 'Sai tài khoản hoặc mật khẩu' });
-    } catch (e) { res.status(500).json({ error: 'Lỗi Server' }); }
-});
-
-// ================= API FILE =================
-app.get('/api/files', async (req, res) => {
-    try {
-        if (isDbConnected) res.json(await FileData.find().sort({ _id: -1 }));
-        else res.json([...ramFiles].reverse());
-    } catch (e) { res.status(500).json({ error: 'Lỗi lấy file' }); }
-});
-
-app.post('/api/files/:id/download', async (req, res) => {
-    try {
-        if (isDbConnected) await FileData.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } });
-        else { const f = ramFiles.find(x => x.id === req.params.id); if(f) f.downloads++; }
-        res.json({ message: 'OK' });
-    } catch (e) { res.status(500).json({ error: 'Lỗi' }); }
-});
-
-// ================= API ADMIN =================
-app.get('/api/admin/users', async (req, res) => {
-    if (isDbConnected) res.json(await User.find()); else res.json(ramUsers);
-});
-
-// Thêm file mới (Có upload file đính kèm)
-app.post('/api/admin/add-file', upload.single('fileUpload'), async (req, res) => {
-    try {
-        const { title, imageUrl } = req.body;
-        let fileUrl = req.body.link; // Link ngoài (nếu có)
-
-        // Nếu Admin có tải file lên, tạo link từ file đó
-        if (req.file) {
-            fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            switch(durationType) {
+                case '1_day': now.setDate(now.getDate() + 1); expText = '1 Ngày'; break;
+                case '1_week': now.setDate(now.getDate() + 7); expText = '1 Tuần'; break;
+                case '1_month': now.setDate(now.getDate() + 30); expText = '1 Tháng'; break;
+                case '1_year': now.setDate(now.getDate() + 365); expText = '1 Năm'; break;
+                case 'lifetime': expText = 'Vĩnh Viễn'; expireAt = -1; break;
+            }
+            if(durationType !== 'lifetime') expireAt = now.getTime();
         }
 
-        const img = imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg';
+        // Tạo mã Key ngẫu nhiên: SAMM-XXXX-XXXX
+        const randStr = () => crypto.randomBytes(2).toString('hex').toUpperCase();
+        const newCode = `SAMM-${randStr()}-${randStr()}`;
+
+        const keyData = { code: newCode, expText, expireAt };
 
         if (isDbConnected) {
-            const newFile = await FileData.create({ title, imageUrl: img, fileUrl, downloads: 0 });
-            res.json({ message: 'Thêm file thành công!', file: newFile });
+            await Key.create(keyData);
         } else {
-            const newFile = { id: Date.now().toString(), title, imageUrl: img, fileUrl, downloads: 0 };
-            ramFiles.push(newFile);
-            res.json({ message: 'Thêm file thành công (RAM)!', file: newFile });
+            ramKeys.push(keyData);
         }
-    } catch (e) { console.error(e); res.status(500).json({ error: 'Lỗi thêm file' }); }
+
+        res.json({ message: 'Tạo Key thành công!', key: keyData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi Server khi tạo Key' });
+    }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server chạy trên port ${PORT}`));
+// Lấy danh sách Key (Cho Admin xem)
+app.get('/api/admin/keys', async (req, res) => {
+    try {
+        if (isDbConnected) {
+            const keys = await Key.find().sort({ createdAt: -1 });
+            res.json(keys);
+        } else {
+            res.json([...ramKeys].reverse());
+        }
+    } catch (e) { res.status(500).json({ error: 'Lỗi lấy danh sách' }); }
+});
+
+// Xóa Key
+app.delete('/api/admin/keys/:code', async (req, res) => {
+    try {
+        if (isDbConnected) await Key.deleteOne({ code: req.params.code });
+        else ramKeys = ramKeys.filter(k => k.code !== req.params.code);
+        res.json({ message: 'Đã xóa Key' });
+    } catch (e) { res.status(500).json({ error: 'Lỗi xóa Key' }); }
+});
+
+// ================= API USER (XÁC THỰC KEY) =================
+app.post('/api/verify-key', async (req, res) => {
+    try {
+        const { code } = req.body;
+        if (!code) return res.status(400).json({ error: 'Vui lòng nhập Key' });
+
+        let foundKey = null;
+
+        if (isDbConnected) {
+            foundKey = await Key.findOne({ code });
+        } else {
+            foundKey = ramKeys.find(k => k.code === code);
+        }
+
+        if (!foundKey) {
+            return res.status(404).json({ error: 'Key không tồn tại trên hệ thống!' });
+        }
+
+        // Kiểm tra hạn sử dụng
+        if (foundKey.expireAt !== -1) {
+            const now = new Date().getTime();
+            if (now > foundKey.expireAt) {
+                return res.status(403).json({ error: 'Key đã hết hạn sử dụng!' });
+            }
+        }
+
+        res.json({ message: 'Xác thực thành công', key: foundKey });
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi Server khi xác thực' });
+    }
+});
+
+app.listen(PORT, () => console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`));

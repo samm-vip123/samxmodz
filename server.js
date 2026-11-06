@@ -7,11 +7,13 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// ⚠️ MẬT KHẨU ADMIN (Hãy đổi thành mật khẩu của bạn)
+const ADMIN_PASSWORD = "admin123"; 
+
 app.use(cors());
 app.use(express.json());
 
-// ============ DATABASE JSON ============
+// ============ DATABASE ============
 const DB_FILE = path.join(__dirname, 'keys.json');
 
 function loadDB() {
@@ -29,20 +31,17 @@ function saveDB(db) {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
-// ============ TẠO KEY RANDOM ============
+// ============ TẠO KEY ============
 function generateKey() {
     const part = () => crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 5);
     return `VIP-${part()}-${part()}-${part()}`;
 }
 
-// ============ API ROUTES ============
-
-// 1. Lấy Key Free
+// ============ API CHO USER (LẤY KEY FREE) ============
 app.post('/api/get-key', (req, res) => {
     const { deviceId } = req.body || {};
     const db = loadDB();
 
-    // Chống spam: Mỗi device chỉ lấy 1 key / ngày
     if (deviceId) {
         const today = new Date().toDateString();
         const existed = db.keys.find(k =>
@@ -50,39 +49,20 @@ app.post('/api/get-key', (req, res) => {
             new Date(k.createdAt).toDateString() === today
         );
         if (existed) {
-            return res.status(429).json({
-                success: false,
-                message: 'Hôm nay bạn đã nhận key rồi. Quay lại ngày mai nhé!',
-                key: existed.key
-            });
+            return res.status(429).json({ success: false, message: 'Hôm nay bạn đã nhận key rồi.', key: existed.key });
         }
     }
 
     const key = generateKey();
-    const newKey = {
-        key,
-        deviceId: deviceId || null,
-        createdAt: Date.now(),
-        active: true,
-        usedCount: 0
-    };
-
+    const newKey = { key, deviceId: deviceId || null, createdAt: Date.now(), active: true, usedCount: 0 };
     db.keys.push(newKey);
     saveDB(db);
-
-    console.log(`[GET KEY] Đã cấp: ${key} | Device: ${deviceId || 'unknown'}`);
-
-    res.json({
-        success: true,
-        message: 'Cấp key thành công!',
-        key: newKey.key
-    });
+    res.json({ success: true, key: newKey.key });
 });
 
-// 2. Xác thực Key
+// ============ API XÁC THỰC KEY ============
 app.post('/api/verify-key', (req, res) => {
     const { key } = req.body;
-
     if (!key) return res.status(400).json({ success: false, message: 'Thiếu key' });
 
     const db = loadDB();
@@ -93,36 +73,70 @@ app.post('/api/verify-key', (req, res) => {
 
     found.usedCount = (found.usedCount || 0) + 1;
     saveDB(db);
-
-    console.log(`[VERIFY] Key hợp lệ: ${found.key}`);
-
-    res.json({
-        success: true,
-        message: 'Key hợp lệ',
-        key: found.key,
-        createdAt: found.createdAt
-    });
+    res.json({ success: true, message: 'Key hợp lệ' });
 });
 
-// 3. API Xem toàn bộ Key (Dành cho Admin)
-app.get('/api/keys', (req, res) => {
+// ============ MIDDLEWARE CHECK ADMIN ============
+function checkAdmin(req, res, next) {
+    const pass = req.headers['x-admin-password'] || req.body.password;
+    if (pass !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, message: 'Sai mật khẩu Admin!' });
+    }
+    next();
+}
+
+// ============ API CHO ADMIN (QUẢN LÝ) ============
+// 1. Lấy danh sách toàn bộ key
+app.get('/api/admin/keys', checkAdmin, (req, res) => {
     const db = loadDB();
-    res.json({ success: true, total: db.keys.length, keys: db.keys });
+    res.json({ success: true, keys: db.keys.reverse() }); // Đảo ngược để key mới lên đầu
 });
 
-// ============ PHỤC VỤ GIAO DIỆN WEB (FIX LỖI CANNOT GET /) ============
-// Phục vụ các file tĩnh trong thư mục 'public'
+// 2. Admin tự tạo key (số lượng tùy chọn)
+app.post('/api/admin/create', checkAdmin, (req, res) => {
+    const { amount } = req.body;
+    const count = parseInt(amount) || 1;
+    if (count > 100) return res.status(400).json({ success: false, message: 'Tối đa 100 key/lần' });
+
+    const db = loadDB();
+    const newKeys = [];
+    for (let i = 0; i < count; i++) {
+        const newKey = {
+            key: generateKey(),
+            deviceId: "ADMIN_CREATED",
+            createdAt: Date.now(),
+            active: true,
+            usedCount: 0
+        };
+        db.keys.push(newKey);
+        newKeys.push(newKey.key);
+    }
+    saveDB(db);
+    res.json({ success: true, message: `Đã tạo ${count} key`, keys: newKeys });
+});
+
+// 3. Admin xóa key
+app.delete('/api/admin/delete/:key', checkAdmin, (req, res) => {
+    const keyToDelete = req.params.key;
+    const db = loadDB();
+    const initLength = db.keys.length;
+    db.keys = db.keys.filter(k => k.key !== keyToDelete);
+    
+    if (db.keys.length === initLength) return res.status(404).json({ success: false, message: 'Không tìm thấy key' });
+    
+    saveDB(db);
+    res.json({ success: true, message: 'Đã xóa key' });
+});
+
+// ============ PHỤC VỤ GIAO DIỆN WEB ============
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Bất kỳ route nào không khớp API và file tĩnh -> trả về index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ============ KHỞI CHẠY SERVER ============
 app.listen(PORT, () => {
-    console.log(`\n🚀 PROXY VIP SERVER ĐANG CHẠY TẠI CỔNG: ${PORT}`);
-    console.log(`👉 Mở trình duyệt: http://localhost:${PORT}`);
-    console.log(`📁 Database: ${DB_FILE}`);
-    console.log(`\n⚠️  LƯU Ý TRÊN RENDER: File keys.json sẽ bị reset khi server khởi động lại (do Free tier).\n`);
+    console.log(`\n🚀 SERVER CHẠY TẠI CỔNG: ${PORT}`);
+    console.log(`👤 ADMIN PASSWORD: ${ADMIN_PASSWORD}`);
+    console.log(`👉 TRANG ADMIN: http://localhost:${PORT}/Admin.html\n`);
 });

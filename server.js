@@ -1,9 +1,3 @@
-// ============================================================
-// PROXY VIP - KEY SERVER (FREE KEY EDITION)
-// Server tự tạo key random và cấp free cho người dùng
-// Không phân loại ngày/tuần/tháng/vĩnh viễn
-// ============================================================
-
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -13,11 +7,11 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// ============ DATABASE ============
+// ============ DATABASE JSON ============
 const DB_FILE = path.join(__dirname, 'keys.json');
 
 function loadDB() {
@@ -36,20 +30,19 @@ function saveDB(db) {
 }
 
 // ============ TẠO KEY RANDOM ============
-// Format: VIP-XXXXX-XXXXX-XXXXX (15 ký tự random, dễ đọc)
 function generateKey() {
     const part = () => crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 5);
     return `VIP-${part()}-${part()}-${part()}`;
 }
 
-// ============ API: LẤY KEY FREE ============
-// POST /api/get-key
-// Server tự tạo key random, không phân loại
+// ============ API ROUTES ============
+
+// 1. Lấy Key Free
 app.post('/api/get-key', (req, res) => {
     const { deviceId } = req.body || {};
     const db = loadDB();
 
-    // (Tùy chọn) Giới hạn: mỗi device chỉ được get 1 key / ngày
+    // Chống spam: Mỗi device chỉ lấy 1 key / ngày
     if (deviceId) {
         const today = new Date().toDateString();
         const existed = db.keys.find(k =>
@@ -60,20 +53,16 @@ app.post('/api/get-key', (req, res) => {
             return res.status(429).json({
                 success: false,
                 message: 'Hôm nay bạn đã nhận key rồi. Quay lại ngày mai nhé!',
-                key: existed.key,
-                createdAt: existed.createdAt
+                key: existed.key
             });
         }
     }
 
-    // Tạo key mới
     const key = generateKey();
-    const now = Date.now();
-
     const newKey = {
         key,
         deviceId: deviceId || null,
-        createdAt: now,
+        createdAt: Date.now(),
         active: true,
         usedCount: 0
     };
@@ -81,62 +70,59 @@ app.post('/api/get-key', (req, res) => {
     db.keys.push(newKey);
     saveDB(db);
 
-    console.log(`[GET KEY] Cấp key mới: ${key} | device: ${deviceId || 'unknown'}`);
+    console.log(`[GET KEY] Đã cấp: ${key} | Device: ${deviceId || 'unknown'}`);
 
     res.json({
         success: true,
-        message: 'Cấp key free thành công!',
-        key: newKey.key,
-        createdAt: newKey.createdAt
+        message: 'Cấp key thành công!',
+        key: newKey.key
     });
 });
 
-// ============ API: XÁC THỰC KEY ============
-// POST /api/verify-key
+// 2. Xác thực Key
 app.post('/api/verify-key', (req, res) => {
     const { key } = req.body;
 
-    if (!key) {
-        return res.status(400).json({ success: false, message: 'Thiếu key' });
-    }
+    if (!key) return res.status(400).json({ success: false, message: 'Thiếu key' });
 
     const db = loadDB();
     const found = db.keys.find(k => k.key === key.trim().toUpperCase());
 
-    if (!found) {
-        return res.status(404).json({ success: false, message: 'Key không tồn tại' });
-    }
-
-    if (!found.active) {
-        return res.status(403).json({ success: false, message: 'Key đã bị vô hiệu hóa' });
-    }
+    if (!found) return res.status(404).json({ success: false, message: 'Key không tồn tại' });
+    if (!found.active) return res.status(403).json({ success: false, message: 'Key bị vô hiệu hóa' });
 
     found.usedCount = (found.usedCount || 0) + 1;
     saveDB(db);
 
-    console.log(`[VERIFY] Key ${found.key} hợp lệ (dùng ${found.usedCount} lần)`);
+    console.log(`[VERIFY] Key hợp lệ: ${found.key}`);
 
     res.json({
         success: true,
         message: 'Key hợp lệ',
         key: found.key,
-        createdAt: found.createdAt,
-        usedCount: found.usedCount
+        createdAt: found.createdAt
     });
 });
 
-// ============ API: DANH SÁCH KEY (admin demo) ============
+// 3. API Xem toàn bộ Key (Dành cho Admin)
 app.get('/api/keys', (req, res) => {
     const db = loadDB();
     res.json({ success: true, total: db.keys.length, keys: db.keys });
 });
 
-// ============ START ============
+// ============ PHỤC VỤ GIAO DIỆN WEB (FIX LỖI CANNOT GET /) ============
+// Phục vụ các file tĩnh trong thư mục 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Bất kỳ route nào không khớp API và file tĩnh -> trả về index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ============ KHỞI CHẠY SERVER ============
 app.listen(PORT, () => {
-    console.log(`\n🚀 PROXY VIP SERVER chạy tại: http://localhost:${PORT}`);
-    console.log(`📁 DB: ${DB_FILE}`);
-    console.log(`\n📌 API:`);
-    console.log(`   POST /api/get-key     → lấy key free (server tự tạo)`);
-    console.log(`   POST /api/verify-key  → xác thực key`);
-    console.log(`   GET  /api/keys        → xem tất cả key (demo)\n`);
+    console.log(`\n🚀 PROXY VIP SERVER ĐANG CHẠY TẠI CỔNG: ${PORT}`);
+    console.log(`👉 Mở trình duyệt: http://localhost:${PORT}`);
+    console.log(`📁 Database: ${DB_FILE}`);
+    console.log(`\n⚠️  LƯU Ý TRÊN RENDER: File keys.json sẽ bị reset khi server khởi động lại (do Free tier).\n`);
 });

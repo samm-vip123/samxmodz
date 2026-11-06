@@ -1,135 +1,189 @@
+// ============================================================
+// PROXY VIP - KEY SERVER
+// API cấp key free + xác thực key
+// Hỗ trợ: ngày (day) / tuần (week) / tháng (month) / vĩnh viễn (lifetime)
+// ============================================================
+
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: '*' }));
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Phục vụ file HTML
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ================= KẾT NỐI DATABASE =================
-// Thay link MongoDB của bạn vào đây
-const MONGO_URI = 'mongodb+srv://admin:123456@cluster0.xxxxx.mongodb.net/samxmodz?retryWrites=true&w=majority'; 
+// ============ DATABASE JSON ============
+const DB_FILE = path.join(__dirname, 'keys.json');
 
-let isDbConnected = false;
-mongoose.connect(MONGO_URI)
-    .then(() => { console.log('✅ Đã kết nối MongoDB!'); isDbConnected = true; })
-    .catch(err => console.log('❌ Lỗi Database:', err.message, '- Sẽ dùng RAM tạm thời!'));
-
-// ================= CẤU TRÚC DATA =================
-// Cấu trúc Key: code, expText (hiển thị), expireAt (thời gian thực), createdAt
-const KeySchema = new mongoose.Schema({ 
-    code: { type: String, unique: true, required: true }, 
-    expText: String, 
-    expireAt: { type: Number, default: -1 }, // -1 là vĩnh viễn
-    createdAt: { type: Date, default: Date.now }
-});
-const Key = mongoose.model('Key', KeySchema);
-
-// Mảng lưu RAM nếu mất kết nối DB
-let ramKeys = [];
-
-// ================= API ADMIN (TẠO KEY) =================
-app.post('/api/admin/generate-key', async (req, res) => {
-    try {
-        const { durationType, customDays, customHours } = req.body;
-        let expText = '';
-        let expireAt = -1; // Mặc định vĩnh viễn
-        let now = new Date();
-
-        // Tính toán thời gian
-        if (durationType === 'custom') {
-            let d = parseInt(customDays) || 0;
-            let h = parseInt(customHours) || 0;
-            now.setDate(now.getDate() + d);
-            now.setHours(now.getHours() + h);
-            expireAt = now.getTime();
-            expText = `${d} Ngày ${h} Giờ`;
-        } else {
-            switch(durationType) {
-                case '1_day': now.setDate(now.getDate() + 1); expText = '1 Ngày'; break;
-                case '1_week': now.setDate(now.getDate() + 7); expText = '1 Tuần'; break;
-                case '1_month': now.setDate(now.getDate() + 30); expText = '1 Tháng'; break;
-                case '1_year': now.setDate(now.getDate() + 365); expText = '1 Năm'; break;
-                case 'lifetime': expText = 'Vĩnh Viễn'; expireAt = -1; break;
-            }
-            if(durationType !== 'lifetime') expireAt = now.getTime();
-        }
-
-        // Tạo mã Key ngẫu nhiên: SAMM-XXXX-XXXX
-        const randStr = () => crypto.randomBytes(2).toString('hex').toUpperCase();
-        const newCode = `SAMM-${randStr()}-${randStr()}`;
-
-        const keyData = { code: newCode, expText, expireAt };
-
-        if (isDbConnected) {
-            await Key.create(keyData);
-        } else {
-            ramKeys.push(keyData);
-        }
-
-        res.json({ message: 'Tạo Key thành công!', key: keyData });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Lỗi Server khi tạo Key' });
+// Khởi tạo DB nếu chưa có
+function loadDB() {
+    if (!fs.existsSync(DB_FILE)) {
+        fs.writeFileSync(DB_FILE, JSON.stringify({ keys: [] }, null, 2));
     }
-});
-
-// Lấy danh sách Key (Cho Admin xem)
-app.get('/api/admin/keys', async (req, res) => {
     try {
-        if (isDbConnected) {
-            const keys = await Key.find().sort({ createdAt: -1 });
-            res.json(keys);
-        } else {
-            res.json([...ramKeys].reverse());
-        }
-    } catch (e) { res.status(500).json({ error: 'Lỗi lấy danh sách' }); }
-});
-
-// Xóa Key
-app.delete('/api/admin/keys/:code', async (req, res) => {
-    try {
-        if (isDbConnected) await Key.deleteOne({ code: req.params.code });
-        else ramKeys = ramKeys.filter(k => k.code !== req.params.code);
-        res.json({ message: 'Đã xóa Key' });
-    } catch (e) { res.status(500).json({ error: 'Lỗi xóa Key' }); }
-});
-
-// ================= API USER (XÁC THỰC KEY) =================
-app.post('/api/verify-key', async (req, res) => {
-    try {
-        const { code } = req.body;
-        if (!code) return res.status(400).json({ error: 'Vui lòng nhập Key' });
-
-        let foundKey = null;
-
-        if (isDbConnected) {
-            foundKey = await Key.findOne({ code });
-        } else {
-            foundKey = ramKeys.find(k => k.code === code);
-        }
-
-        if (!foundKey) {
-            return res.status(404).json({ error: 'Key không tồn tại trên hệ thống!' });
-        }
-
-        // Kiểm tra hạn sử dụng
-        if (foundKey.expireAt !== -1) {
-            const now = new Date().getTime();
-            if (now > foundKey.expireAt) {
-                return res.status(403).json({ error: 'Key đã hết hạn sử dụng!' });
-            }
-        }
-
-        res.json({ message: 'Xác thực thành công', key: foundKey });
-    } catch (error) {
-        res.status(500).json({ error: 'Lỗi Server khi xác thực' });
+        return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    } catch (e) {
+        return { keys: [] };
     }
+}
+
+function saveDB(db) {
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+}
+
+// ============ CẤU HÌNH THỜI HẠN KEY ============
+const DURATIONS = {
+    day:      { ms: 24 * 60 * 60 * 1000,           label: 'Ngày / Day' },
+    week:     { ms: 7 * 24 * 60 * 60 * 1000,       label: 'Tuần / Week' },
+    month:    { ms: 30 * 24 * 60 * 60 * 1000,      label: 'Tháng / Month' },
+    lifetime: { ms: null,                            label: 'Vĩnh viễn / Lifetime' }
+};
+
+// ============ TẠO KEY ============
+function generateKey(type) {
+    // Format: VIP-XXXXX-XXXXX-XXXXX (dễ đọc)
+    const rand = () => crypto.randomBytes(3).toString('hex').toUpperCase();
+    return `VIP-${rand()}-${rand()}-${rand()}`;
+}
+
+// ============ API: LẤY KEY FREE ============
+// POST /api/get-key  body: { type: 'day'|'week'|'month'|'lifetime', deviceId?: string }
+app.post('/api/get-key', (req, res) => {
+    const { type, deviceId } = req.body;
+
+    // Kiểm tra loại key hợp lệ
+    if (!type || !DURATIONS[type]) {
+        return res.status(400).json({
+            success: false,
+            message: 'Loại key không hợp lệ. Chọn: day / week / month / lifetime'
+        });
+    }
+
+    const db = loadDB();
+
+    // (Tùy chọn) Giới hạn 1 device chỉ được get 1 key free / loại / ngày
+    if (deviceId) {
+        const today = new Date().toDateString();
+        const existed = db.keys.find(k =>
+            k.deviceId === deviceId &&
+            k.type === type &&
+            new Date(k.createdAt).toDateString() === today
+        );
+        if (existed) {
+            return res.status(429).json({
+                success: false,
+                message: 'Hôm nay bạn đã nhận key loại này rồi. Thử loại khác hoặc quay lại ngày mai!',
+                existingKey: existed.key,
+                expiresAt: existed.expiresAt
+            });
+        }
+    }
+
+    // Tạo key mới
+    const key = generateKey(type);
+    const now = Date.now();
+    const duration = DURATIONS[type].ms;
+    const expiresAt = duration === null ? null : now + duration;
+
+    const newKey = {
+        key,
+        type,
+        typeLabel: DURATIONS[type].label,
+        deviceId: deviceId || null,
+        createdAt: now,
+        expiresAt,
+        active: true,
+        usedCount: 0
+    };
+
+    db.keys.push(newKey);
+    saveDB(db);
+
+    res.json({
+        success: true,
+        message: `Cấp key ${DURATIONS[type].label} thành công!`,
+        key: newKey.key,
+        type: newKey.type,
+        typeLabel: newKey.typeLabel,
+        createdAt: newKey.createdAt,
+        expiresAt: newKey.expiresAt,
+        expiresIn: duration === null ? 'Vĩnh viễn' : formatDuration(duration)
+    });
 });
 
-app.listen(PORT, () => console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`));
+// ============ API: XÁC THỰC KEY ============
+// POST /api/verify-key  body: { key: 'VIP-XXXXX-...' }
+app.post('/api/verify-key', (req, res) => {
+    const { key } = req.body;
+
+    if (!key) {
+        return res.status(400).json({ success: false, message: 'Thiếu key' });
+    }
+
+    const db = loadDB();
+    const found = db.keys.find(k => k.key === key.trim().toUpperCase());
+
+    if (!found) {
+        return res.status(404).json({ success: false, message: 'Key không tồn tại' });
+    }
+
+    // Kiểm tra hết hạn
+    if (found.expiresAt !== null && Date.now() > found.expiresAt) {
+        return res.status(403).json({ success: false, message: 'Key đã hết hạn' });
+    }
+
+    if (!found.active) {
+        return res.status(403).json({ success: false, message: 'Key đã bị vô hiệu hóa' });
+    }
+
+    // Tăng lượt dùng
+    found.usedCount = (found.usedCount || 0) + 1;
+    saveDB(db);
+
+    res.json({
+        success: true,
+        message: 'Key hợp lệ',
+        key: found.key,
+        type: found.type,
+        typeLabel: found.typeLabel,
+        createdAt: found.createdAt,
+        expiresAt: found.expiresAt,
+        remaining: found.expiresAt === null
+            ? 'Vĩnh viễn'
+            : formatDuration(found.expiresAt - Date.now())
+    });
+});
+
+// ============ API: DANH SÁCH KEY (admin - demo) ============
+app.get('/api/keys', (req, res) => {
+    const db = loadDB();
+    res.json({ success: true, total: db.keys.length, keys: db.keys });
+});
+
+// ============ HELPER: format thời gian ============
+function formatDuration(ms) {
+    if (ms <= 0) return 'Đã hết hạn';
+    const sec = Math.floor(ms / 1000);
+    const day = Math.floor(sec / 86400);
+    const hour = Math.floor((sec % 86400) / 3600);
+    const min = Math.floor((sec % 3600) / 60);
+    if (day > 0) return `${day} ngày ${hour} giờ`;
+    if (hour > 0) return `${hour} giờ ${min} phút`;
+    return `${min} phút`;
+}
+
+// ============ START SERVER ============
+app.listen(PORT, () => {
+    console.log(`\n🚀 PROXY VIP SERVER đang chạy tại: http://localhost:${PORT}`);
+    console.log(`📁 DB: ${DB_FILE}`);
+    console.log(`\n📌 API:`);
+    console.log(`   POST /api/get-key     → lấy key free (day/week/month/lifetime)`);
+    console.log(`   POST /api/verify-key  → xác thực key`);
+    console.log(`   GET  /api/keys        → xem tất cả key (demo)\n`);
+});

@@ -1,620 +1,1209 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SAMM X MOD - Client</title>
-  <style>
-    /* Import Font */
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PROXY VIP — Cyber Edition</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+body {
+    background: #05010f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
 
-    body {
-      background-color: #030308;
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-      font-family: 'Share Tech Mono', monospace;
-    }
+body::before {
+    content:'';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(168, 85, 247, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+}
 
-    /* Khung chứa chính */
-    .app-container {
-      width: 100%;
-      max-width: 420px;
-      height: 100vh;
-      max-height: 850px;
-      background: rgba(5, 8, 15, 0.95);
-      border: 1px solid rgba(0, 255, 255, 0.2);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 0 50px rgba(0, 255, 255, 0.05);
-    }
+body::after {
+    content:'';
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,85,247,0.18), transparent 65%);
+    top: -200px; left: -150px;
+    animation: drift 12s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
 
-    /* Lưới nền (Grid Background) */
-    .app-container::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background-image: 
-        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
-      z-index: 0;
-      pointer-events: none;
-    }
+@keyframes drift { to { transform: translate(120px, 100px); } }
 
-    /* ================= MÀN HÌNH 1: XÁC THỰC (AUTH) ================= */
-    #auth-screen {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 30px;
-      z-index: 10;
-      background: rgba(3, 3, 8, 0.95);
-      transition: all 0.5s ease;
-    }
+.app-frame {
+    position: relative;
+    z-index: 2;
+    max-width: 400px;
+    width: 100%;
+    background: rgba(10, 4, 26, 0.82);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-radius: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.12) inset,
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 80px rgba(168, 85, 247, 0.22),
+        0 0 160px rgba(34, 211, 238, 0.08);
+    padding: 0 0 18px;
+    max-height: 95vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    animation: frameGlow 4s ease-in-out infinite alternate;
+}
 
-    .radar-icon {
-      width: 120px;
-      height: 120px;
-      border: 2px solid rgba(0, 255, 255, 0.3);
-      border-radius: 50%;
-      position: relative;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.1) inset;
-    }
-    
-    .radar-icon::before {
-      content: '';
-      position: absolute;
-      width: 100%; height: 100%;
-      border-radius: 50%;
-      border-top: 2px solid #00ffff;
-      animation: spin 2s linear infinite;
-    }
-    
-    .radar-icon::after {
-      content: '🔒';
-      font-size: 40px;
-      text-shadow: 0 0 20px #00ffff;
-    }
+.app-frame::-webkit-scrollbar { display:none; }
 
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes frameGlow {
+    0% { box-shadow: 0 0 0 1px rgba(34,211,238,0.12) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 60px rgba(168,85,247,0.18), 0 0 120px rgba(34,211,238,0.05); }
+    100% { box-shadow: 0 0 0 1px rgba(34,211,238,0.2) inset, 0 25px 60px rgba(0,0,0,0.9), 0 0 100px rgba(168,85,247,0.32), 0 0 180px rgba(34,211,238,0.12); }
+}
 
-    .auth-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: 5px;
-      color: #fff;
-      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-      margin-bottom: 10px;
-      text-align: center;
-    }
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.18);
+    position: relative;
+}
 
-    .auth-subtitle {
-      font-size: 12px;
-      color: #00ffff;
-      letter-spacing: 3px;
-      margin-bottom: 40px;
-      text-transform: uppercase;
-    }
+.top-bar::after {
+    content:'';
+    position: absolute;
+    bottom: -1px; left: 18px; right: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #22d3ee, #a855f7, transparent);
+    opacity: 0.7;
+}
 
-    .input-group {
-      width: 100%;
-      position: relative;
-      margin-bottom: 25px;
-    }
+.brand { display: flex; align-items: center; gap: 11px; }
 
-    .input-group input {
-      width: 100%;
-      background: rgba(0, 255, 255, 0.05);
-      border: 1px solid rgba(0, 255, 255, 0.3);
-      padding: 18px;
-      color: #fff;
-      font-size: 20px;
-      font-family: 'Share Tech Mono', monospace;
-      letter-spacing: 3px;
-      text-align: center;
-      outline: none;
-      transition: all 0.3s;
-    }
+.brand-mark {
+    width: 42px; height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 17px;
+    color: #05010f;
+    background: linear-gradient(135deg, #22d3ee, #a855f7);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    box-shadow: 0 0 22px rgba(168, 85, 247, 0.6);
+    animation: markSpin 6s linear infinite;
+}
 
-    .input-group input:focus {
-      background: rgba(0, 255, 255, 0.1);
-      border-color: #00ffff;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-    }
+@keyframes markSpin {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(40deg); }
+}
 
-    .input-group input::placeholder {
-      color: rgba(0, 255, 255, 0.3);
-      letter-spacing: 1px;
-      font-size: 14px;
-    }
+.brand-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #22d3ee, #e0b0ff, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
 
-    .auth-btn {
-      width: 100%;
-      padding: 18px;
-      background: transparent;
-      border: 2px solid #00ffff;
-      color: #00ffff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      font-weight: bold;
-      letter-spacing: 3px;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
+.brand-sub {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #6b5b95;
+    font-weight: 700;
+    margin-top: 1px;
+}
 
-    .auth-btn::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: #00ffff;
-      transition: all 0.3s;
-      z-index: -1;
-    }
+.top-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #22d3ee;
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    padding: 6px 11px;
+    border-radius: 6px;
+    background: rgba(34, 211, 238, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+}
 
-    .auth-btn:hover::before, .auth-btn:active::before {
-      left: 0;
-    }
+.top-badge::before {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(34,211,238,0.25), transparent);
+    transform: translateX(-100%);
+    animation: badgeSweep 3s infinite;
+}
 
-    .auth-btn:hover, .auth-btn:active {
-      color: #000;
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-    }
+@keyframes badgeSweep { 100% { transform: translateX(100%); } }
 
-    .error-msg {
-      color: #ff0080;
-      font-size: 13px;
-      margin-top: 20px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.3s;
-      letter-spacing: 1px;
-    }
-    .error-msg.show { opacity: 1; text-shadow: 0 0 10px #ff0080; }
+.screen { display: none; }
+.screen.active { display: block; animation: screenIn 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
 
-    /* Loading Overlay */
-    #loading-screen {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
+@keyframes screenIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    .loader {
-      width: 60px;
-      height: 60px;
-      border: 3px solid rgba(0, 255, 255, 0.1);
-      border-top: 3px solid #00ffff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    
-    .loading-text {
-      color: #00ffff;
-      letter-spacing: 2px;
-      animation: blink 1s infinite alternate;
-    }
+.activation-wrap { padding: 26px 22px 8px; text-align: center; }
 
-    /* ================= MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN ================= */
-    #main-screen {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
-      z-index: 5;
-      animation: fadeIn 0.6s ease;
-    }
+.key-emblem {
+    width: 90px; height: 90px;
+    margin: 0 auto 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
+.key-emblem .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px dashed rgba(34, 211, 238, 0.45);
+    animation: spinRing 14s linear infinite;
+}
 
-    /* Header */
-    .header {
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(0, 255, 255, 0.1);
-      background: linear-gradient(180deg, rgba(0, 255, 255, 0.05) 0%, transparent 100%);
-    }
+.key-emblem .ring:nth-child(2) {
+    inset: 12px;
+    border: 2px solid rgba(168, 85, 247, 0.35);
+    border-top-color: #a855f7;
+    animation: spinRing 8s linear infinite reverse;
+}
 
-    .logo-container {
-      display: flex;
-      flex-direction: column;
-    }
+@keyframes spinRing { to { transform: rotate(360deg); } }
 
-    .logo-text {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #fff;
-      text-shadow: 0 0 10px #00ffff;
-    }
+.key-emblem .core {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2a1045, #0a0118);
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #22d3ee;
+    box-shadow: 0 0 35px rgba(168, 85, 247, 0.55), 0 0 15px rgba(34, 211, 238, 0.4) inset;
+    animation: corePulse 2.4s ease-in-out infinite;
+}
 
-    .logo-sub {
-      font-size: 10px;
-      color: #ff0080;
-      letter-spacing: 2px;
-      margin-top: 2px;
-    }
+@keyframes corePulse {
+    0%,100% { box-shadow: 0 0 30px rgba(168,85,247,0.45), 0 0 15px rgba(34,211,238,0.35) inset; }
+    50% { box-shadow: 0 0 55px rgba(168,85,247,0.8), 0 0 25px rgba(34,211,238,0.6) inset; }
+}
 
-    .status-badge {
-      background: rgba(0, 255, 255, 0.1);
-      border: 1px solid #00ffff;
-      padding: 6px 12px;
-      font-size: 11px;
-      color: #00ffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-    }
+.activation-wrap h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #f3e9ff;
+    text-shadow: 0 0 22px rgba(168, 85, 247, 0.7);
+    margin-bottom: 4px;
+}
 
-    .status-dot {
-      width: 6px; height: 6px;
-      background: #00ffff;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #00ffff;
-      animation: blink 1.5s infinite;
-    }
+.activation-wrap .en-line {
+    font-size: 10px;
+    letter-spacing: 3.5px;
+    color: #22d3ee;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+}
 
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+/* Nút GET KEY FREE (đặt trên, nổi bật) */
+.getkey-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #22d3ee, #a855f7);
+    border: none;
+    color: #05010f;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(34, 211, 238, 0.4), 0 0 20px rgba(168, 85, 247, 0.3) inset;
+    margin-bottom: 16px;
+}
 
-    /* Khu vực nội dung */
-    .content {
-      padding: 20px;
-      overflow-y: auto;
-      flex: 1;
-    }
+.getkey-btn::before {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: translateX(-100%);
+    animation: btnSweep 2.8s infinite;
+}
 
-    .section-title {
-      font-size: 12px;
-      color: #00ffff;
-      letter-spacing: 2px;
-      margin-bottom: 15px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+@keyframes btnSweep { 100% { transform: translateX(100%); } }
 
-    /* Các nút tính năng (Mod Menu) */
-    .feature-btn {
-      background: rgba(0, 255, 255, 0.03);
-      border: 1px solid rgba(0, 255, 255, 0.1);
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
+.getkey-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(34,211,238,0.6), 0 0 26px rgba(168,85,247,0.5) inset; }
+.getkey-btn:active { transform: scale(0.98); }
+.getkey-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Hiệu ứng quét khi active */
-    .feature-btn::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
-      transition: all 0.4s;
-    }
+.getkey-btn i { font-size: 16px; }
 
-    .feature-btn.active::before {
-      left: 100%;
-    }
+/* Divider */
+.divider-or {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 16px;
+    color: #5c4a7d;
+    font-size: 9px;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
 
-    .feature-btn.active {
-      border-color: #00ffff;
-      background: rgba(0, 255, 255, 0.08);
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1) inset;
-    }
+.divider-or::before,
+.divider-or::after {
+    content:'';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,85,247,0.35), transparent);
+}
 
-    .feature-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+.key-field { text-align: left; margin-bottom: 12px; }
 
-    .feature-name {
-      font-size: 15px;
-      font-weight: bold;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-    
-    .feature-desc {
-      font-size: 10px;
-      color: #555;
-      letter-spacing: 1px;
-    }
+.key-field label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #9d7fc4;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    padding-left: 4px;
+}
 
-    .feature-btn.active .feature-desc {
-      color: #00ffff;
-      text-shadow: 0 0 5px #00ffff;
-    }
+.key-box {
+    display: flex;
+    align-items: center;
+    background: rgba(5, 1, 15, 0.85);
+    border: 1.5px solid rgba(168, 85, 247, 0.35);
+    border-radius: 12px;
+    padding: 0 14px;
+    transition: all 0.3s;
+}
 
-    /* Công tắc (Switch) */
-    .switch {
-      width: 46px;
-      height: 24px;
-      background: #111;
-      border: 1px solid #333;
-      position: relative;
-      transition: 0.3s;
-    }
+.key-box:focus-within {
+    border-color: #22d3ee;
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15), 0 0 28px rgba(34, 211, 238, 0.25);
+}
 
-    .switch::after {
-      content: '';
-      position: absolute;
-      top: 2px; left: 2px;
-      width: 18px; height: 18px;
-      background: #444;
-      transition: 0.3s;
-    }
+.key-box i { color: #a855f7; font-size: 15px; margin-right: 10px; }
 
-    .feature-btn.active .switch {
-      background: rgba(0, 255, 255, 0.2);
-      border-color: #00ffff;
-    }
+.key-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e9d5ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 14px 0;
+}
 
-    .feature-btn.active .switch::after {
-      transform: translateX(22px);
-      background: #00ffff;
-      box-shadow: 0 0 15px #00ffff;
-    }
+.key-box input::placeholder {
+    font-family: 'Rajdhani', sans-serif;
+    color: #4a3a66;
+    letter-spacing: 1.5px;
+    font-size: 12px;
+    font-weight: 600;
+}
 
-    /* Bảng Log (Console) */
-    .console-box {
-      background: #000;
-      border: 1px solid #222;
-      padding: 15px;
-      height: 140px;
-      overflow-y: auto;
-      font-size: 11px;
-      color: #666;
-      margin-top: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.8) inset;
-    }
+.activate-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(34, 211, 238, 0.1);
+    border: 1.5px solid rgba(34, 211, 238, 0.5);
+    color: #22d3ee;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+}
 
-    .log-line { margin-bottom: 5px; }
-    .log-success { color: #00ffff; }
-    .log-info { color: #fff; }
-    .log-error { color: #ff0080; }
+.activate-btn:hover {
+    background: rgba(34, 211, 238, 0.18);
+    box-shadow: 0 0 25px rgba(34, 211, 238, 0.4);
+    transform: translateY(-1px);
+}
 
-    /* Thanh chân trang */
-    .footer {
-      padding: 15px;
-      text-align: center;
-      font-size: 10px;
-      color: #333;
-      letter-spacing: 1px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-  </style>
+.activate-btn:active { transform: scale(0.98); }
+.activate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Result box */
+.key-result {
+    display: none;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(34, 211, 238, 0.07);
+    border: 1.5px solid rgba(34, 211, 238, 0.4);
+    text-align: left;
+    animation: screenIn 0.4s ease;
+}
+
+.key-result.show { display: block; }
+
+.key-result .result-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #22d3ee;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.key-result .result-key {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: #e9d5ff;
+    word-break: break-all;
+    text-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+    margin-bottom: 8px;
+    cursor: pointer;
+    padding: 8px;
+    background: rgba(5, 1, 15, 0.6);
+    border-radius: 8px;
+    border: 1px dashed rgba(168, 85, 247, 0.3);
+    transition: all 0.2s;
+}
+
+.key-result .result-key:hover {
+    border-color: #22d3ee;
+    background: rgba(34, 211, 238, 0.08);
+}
+
+.key-result .result-meta {
+    font-size: 10px;
+    color: #9d7fc4;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+}
+
+.key-result .result-meta span { color: #22d3ee; font-weight: 700; }
+
+.copy-hint {
+    font-size: 9px;
+    color: #5c4a7d;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* MAIN SCREEN */
+.main-wrap { padding: 16px 18px 4px; }
+
+.key-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(34, 211, 238, 0.06);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.key-strip::before {
+    content:'';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #22d3ee, #a855f7);
+}
+
+.key-strip i { color: #22d3ee; font-size: 13px; }
+
+.key-strip span {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    color: #7dd3fc;
+}
+
+.hud-conn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(20, 8, 40, 0.9), rgba(8, 3, 20, 0.9));
+    border-radius: 14px;
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hud-conn::after {
+    content:'';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #a855f7, #22d3ee, transparent);
+}
+
+.hud-left { display: flex; align-items: center; gap: 12px; }
+
+.hud-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #22d3ee;
+    box-shadow: 0 0 12px #22d3ee, 0 0 24px #22d3ee88;
+    animation: hudBlink 1.8s infinite;
+}
+
+@keyframes hudBlink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
+.hud-left h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #e9d5ff;
+}
+
+.hud-left p {
+    font-size: 10.5px;
+    color: #6b5b95;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.hud-ping {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    padding: 7px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+}
+
+.sec-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 2px 12px;
+}
+
+.sec-label .bar {
+    width: 22px; height: 2px;
+    background: linear-gradient(90deg, #a855f7, #22d3ee);
+    border-radius: 2px;
+}
+
+.sec-label h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #a78bca;
+    text-transform: uppercase;
+}
+
+.sec-label .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(168,85,247,0.35), transparent);
+}
+
+.feat-row {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px 14px;
+    border-radius: 12px;
+    background: rgba(15, 6, 32, 0.75);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    margin-bottom: 10px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.feat-row::before {
+    content:'';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #22d3ee, #a855f7);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feat-row.on {
+    background: linear-gradient(135deg, rgba(40, 15, 70, 0.9), rgba(15, 6, 32, 0.9));
+    border-color: rgba(34, 211, 238, 0.4);
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.18), 0 0 0 1px rgba(34, 211, 238, 0.1) inset;
+}
+
+.feat-row.on::before { opacity: 1; }
+
+.feat-ico {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+
+.feat-row.on .feat-ico {
+    background: linear-gradient(135deg, #a855f7, #22d3ee);
+    color: #05010f;
+    border-color: rgba(255,255,255,0.4);
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
+}
+
+.feat-txt { flex: 1; min-width: 0; }
+
+.feat-txt .vi {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #e9d5ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.feat-txt .en {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #22d3ee;
+    text-transform: uppercase;
+    margin-top: 1px;
+    opacity: 0.85;
+}
+
+.feat-txt .desc {
+    font-size: 9.5px;
+    color: #5c4a7d;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.hud-switch {
+    position: relative;
+    width: 50px; height: 28px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.hud-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.hud-switch .track {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: rgba(5, 1, 15, 0.9);
+    border: 1.5px solid rgba(168, 85, 247, 0.35);
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+.hud-switch .track::after {
+    content:'OFF';
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: #5c4a7d;
+    transition: all 0.3s;
+}
+
+.hud-switch .knob {
+    position: absolute;
+    width: 20px; height: 20px;
+    top: 4px; left: 4px;
+    border-radius: 6px;
+    background: #6b5b95;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.hud-switch input:checked ~ .track {
+    background: rgba(34, 211, 238, 0.12);
+    border-color: #22d3ee;
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.4), 0 0 0 1px rgba(34,211,238,0.2) inset;
+}
+
+.hud-switch input:checked ~ .track::after {
+    content:'ON';
+    color: #22d3ee;
+    left: 6px;
+    right: auto;
+}
+
+.hud-switch input:checked ~ .knob {
+    transform: translateX(22px);
+    background: linear-gradient(135deg, #22d3ee, #a855f7);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
+}
+
+.action-row { display: flex; gap: 10px; margin-top: 16px; }
+
+.btn-connect {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #a855f7, #22d3ee);
+    color: #05010f;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 26px rgba(168, 85, 247, 0.4);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-connect::before {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: translateX(-100%);
+    animation: btnSweep 3s infinite;
+}
+
+.btn-connect:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(168,85,247,0.6); }
+.btn-connect:active { transform: scale(0.98); }
+
+.btn-icon {
+    width: 50px;
+    border: 1.5px solid rgba(168, 85, 247, 0.35);
+    border-radius: 12px;
+    background: rgba(168, 85, 247, 0.06);
+    color: #a855f7;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(34, 211, 238, 0.12);
+    color: #22d3ee;
+    border-color: rgba(34, 211, 238, 0.5);
+}
+
+.logout-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 14px;
+    padding: 9px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    color: #5c4a7d;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.logout-line:hover { color: #ff4d6d; background: rgba(255, 77, 109, 0.06); }
+
+.foot {
+    text-align: center;
+    margin-top: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 7.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: #3a2a55;
+    text-transform: uppercase;
+}
+
+.foot i { color: #a855f7; margin-right: 5px; }
+
+.toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    background: rgba(10, 4, 26, 0.96);
+    backdrop-filter: blur(18px);
+    color: #e9d5ff;
+    padding: 13px 24px;
+    border-radius: 10px;
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.85), 0 0 30px rgba(168, 85, 247, 0.35);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 90vw;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast i { font-size: 16px; flex-shrink: 0; }
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.15) 0px,
+        rgba(0,0,0,0.15) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.35;
+}
+</style>
 </head>
 <body>
 
-  <div class="app-container">
-    
-    <!-- ================= MÀN HÌNH 1: XÁC THỰC KEY ================= -->
-    <div id="auth-screen">
-      <div class="radar-icon"></div>
-      <div class="auth-title">SAMM X MOD</div>
-      <div class="auth-subtitle">SERVER AUTHENTICATION</div>
-      
-      <div class="input-group">
-        <input type="text" id="keyInput" placeholder="NHẬP LICENSE KEY..." autocomplete="off">
-      </div>
-      
-      <button class="auth-btn" onclick="verifyKey()">KẾT NỐI HỆ THỐNG</button>
-      
-      <div class="error-msg" id="errorMsg">SAI KEY HOẶC LỖI KẾT NỐI!</div>
+<div class="scanlines"></div>
+
+<div class="app-frame">
+    <div class="top-bar">
+        <div class="brand">
+            <div class="brand-mark">P</div>
+            <div>
+                <div class="brand-name">PROXY VIP</div>
+                <div class="brand-sub">CYBER EDITION</div>
+            </div>
+        </div>
+        <div class="top-badge">
+            <i class="fas fa-crown" style="font-size:10px;"></i> PREMIUM
+        </div>
     </div>
 
-    <!-- ================= MÀN HÌNH LOADING ================= -->
-    <div id="loading-screen">
-      <div class="loader"></div>
-      <div class="loading-text">ĐANG XÁC THỰC...</div>
+    <!-- ========== SCREEN 1: ACTIVATION ========== -->
+    <div class="screen active" id="screenActivate">
+        <div class="activation-wrap">
+            <div class="key-emblem">
+                <div class="ring"></div>
+                <div class="ring"></div>
+                <div class="core"><i class="fas fa-key"></i></div>
+            </div>
+
+            <h2>KÍCH HOẠT KEY</h2>
+            <div class="en-line">Activation Required</div>
+
+            <!-- Nút GET KEY FREE (server cấp) -->
+            <button class="getkey-btn" id="getKeyBtn">
+                <i class="fas fa-gift"></i> NHẬN KEY FREE / GET KEY
+            </button>
+
+            <div class="divider-or">HOẶC / OR</div>
+
+            <div class="key-field">
+                <label><i class="fas fa-lock" style="font-size:9px;margin-right:4px;"></i> Nhập Key VIP / Enter Key</label>
+                <div class="key-box">
+                    <i class="fas fa-terminal"></i>
+                    <input type="text" id="keyInput" placeholder="VIP-XXXX-XXXX-XXXX" maxlength="32" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <button class="activate-btn" id="activateBtn">
+                <i class="fas fa-bolt"></i> KÍCH HOẠT NGAY
+            </button>
+
+            <!-- Kết quả key -->
+            <div class="key-result" id="keyResult">
+                <div class="result-label">✓ Key của bạn / Your Key</div>
+                <div class="result-key" id="resultKey">---</div>
+                <div class="result-meta" id="resultMeta"></div>
+                <div class="copy-hint"><i class="fas fa-hand-pointer"></i> Nhấn vào key để copy</div>
+            </div>
+        </div>
     </div>
 
-    <!-- ================= MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN ================= -->
-    <div id="main-screen">
-      
-      <div class="header">
-        <div class="logo-container">
-          <div class="logo-text">SAMM X MOD</div>
-          <div class="logo-sub">v2.0 // ACTIVE</div>
-        </div>
-        <div class="status-badge">
-          <div class="status-dot"></div>
-          SECURED
-        </div>
-      </div>
+    <!-- ========== SCREEN 2: MAIN ========== -->
+    <div class="screen" id="screenMain">
+        <div class="main-wrap">
+            <div class="key-strip">
+                <i class="fas fa-check-circle"></i>
+                <span>KEY VIP ĐÃ KÍCH HOẠT · PREMIUM ACTIVE</span>
+            </div>
 
-      <div class="content">
-        <div class="section-title">
-          <span>⚡</span> TÍNH NĂNG HỆ THỐNG
-        </div>
+            <div class="hud-conn">
+                <div class="hud-left">
+                    <div class="hud-dot"></div>
+                    <div>
+                        <h3>ĐÃ KẾT NỐI</h3>
+                        <p>Proxy: Singapore VIP</p>
+                    </div>
+                </div>
+                <div class="hud-ping">
+                    <i class="fas fa-bolt" style="font-size:10px;"></i> 24 MS
+                </div>
+            </div>
 
-        <!-- Các tính năng -->
-        <div class="feature-btn" onclick="toggleFeature(this)">
-          <div class="feature-info">
-            <div class="feature-name">AIMBOT CORE</div>
-            <div class="feature-desc">Hệ thống khóa mục tiêu</div>
-          </div>
-          <div class="switch"></div>
-        </div>
+            <div class="sec-label">
+                <div class="bar"></div>
+                <h2>Hỗ Trợ Ngắm / Aim Assist</h2>
+                <div class="line"></div>
+            </div>
 
-        <div class="feature-btn" onclick="toggleFeature(this)">
-          <div class="feature-info">
-            <div class="feature-name">ESP / WALLHACK</div>
-            <div class="feature-desc">Hiển thị xuyên vật thể</div>
-          </div>
-          <div class="switch"></div>
-        </div>
+            <div class="feat-row" id="rowAimbot">
+                <div class="feat-ico"><i class="fas fa-robot"></i></div>
+                <div class="feat-txt">
+                    <div class="vi">AIM BOT</div>
+                    <div class="en">Aim Bot · Auto Aim</div>
+                    <div class="desc">Tự động ngắm bắn</div>
+                </div>
+                <label class="hud-switch">
+                    <input type="checkbox" id="tgAimbot">
+                    <span class="track"></span>
+                    <span class="knob"></span>
+                </label>
+            </div>
 
-        <div class="feature-btn" onclick="toggleFeature(this)">
-          <div class="feature-info">
-            <div class="feature-name">SPEED HACK</div>
-            <div class="feature-desc">Tăng tốc độ di chuyển</div>
-          </div>
-          <div class="switch"></div>
-        </div>
+            <div class="feat-row" id="rowAimlock">
+                <div class="feat-ico"><i class="fas fa-lock"></i></div>
+                <div class="feat-txt">
+                    <div class="vi">AIM LOCK</div>
+                    <div class="en">Aim Lock · Target Lock</div>
+                    <div class="desc">Khóa mục tiêu</div>
+                </div>
+                <label class="hud-switch">
+                    <input type="checkbox" id="tgAimlock">
+                    <span class="track"></span>
+                    <span class="knob"></span>
+                </label>
+            </div>
 
-        <div class="feature-btn" onclick="toggleFeature(this)">
-          <div class="feature-info">
-            <div class="feature-name">ANTI-BAN BYPASS</div>
-            <div class="feature-desc">Chống phát hiện hệ thống</div>
-          </div>
-          <div class="switch"></div>
-        </div>
+            <div class="feat-row" id="rowAimneck">
+                <div class="feat-ico"><i class="fas fa-bullseye"></i></div>
+                <div class="feat-txt">
+                    <div class="vi">AIM NECK</div>
+                    <div class="en">Aim Neck · Neck Shot</div>
+                    <div class="desc">Ngắm cổ / Head-neck</div>
+                </div>
+                <label class="hud-switch">
+                    <input type="checkbox" id="tgAimneck">
+                    <span class="track"></span>
+                    <span class="knob"></span>
+                </label>
+            </div>
 
-        <div class="section-title" style="margin-top: 25px;">
-          <span>💻</span> SYSTEM LOG
-        </div>
-        
-        <div class="console-box" id="console">
-          <div class="log-line log-success">> Kết nối Server thành công.</div>
-          <div class="log-line log-info">> Chào mừng bạn đến với SAMM X MOD.</div>
-        </div>
-      </div>
+            <div class="action-row">
+                <button class="btn-connect" id="connectBtn">
+                    <i class="fas fa-bolt"></i> KẾT NỐI VIP
+                </button>
+                <button class="btn-icon" id="settingsBtn">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+            </div>
 
-      <div class="footer">
-        © 2026 SAMM X MOD // INTERNAL USE ONLY
-      </div>
+            <div class="logout-line" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất Key / Logout
+            </div>
 
+            <div class="foot">
+                <i class="fas fa-shield-alt"></i> Bảo mật tối đa · Tốc độ VIP
+            </div>
+        </div>
     </div>
+</div>
 
-  </div>
+<div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">Thông báo</span>
+</div>
 
-  <script>
-    // Đổi thành tên miền của bạn nếu đưa lên host
-    const API_URL = 'http://localhost:10000'; 
+<script>
+(function(){
+    const API_BASE = window.location.origin;
 
-    async function verifyKey() {
-      const input = document.getElementById('keyInput').value.trim().toUpperCase();
-      const errorMsg = document.getElementById('errorMsg');
-      const authScreen = document.getElementById('auth-screen');
-      const mainScreen = document.getElementById('main-screen');
-      const loadingScreen = document.getElementById('loading-screen');
+    const screenActivate = document.getElementById('screenActivate');
+    const screenMain = document.getElementById('screenMain');
+    const keyInput = document.getElementById('keyInput');
+    const activateBtn = document.getElementById('activateBtn');
+    const getKeyBtn = document.getElementById('getKeyBtn');
+    const keyResult = document.getElementById('keyResult');
+    const resultKey = document.getElementById('resultKey');
+    const resultMeta = document.getElementById('resultMeta');
+    const toastEl = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
 
-      if(!input) {
-        errorMsg.innerText = "VUI LÒNG NHẬP KEY!";
-        errorMsg.classList.add('show');
-        return;
-      }
+    const tgAimbot = document.getElementById('tgAimbot');
+    const tgAimlock = document.getElementById('tgAimlock');
+    const tgAimneck = document.getElementById('tgAimneck');
+    const rowAimbot = document.getElementById('rowAimbot');
+    const rowAimlock = document.getElementById('rowAimlock');
+    const rowAimneck = document.getElementById('rowAimneck');
 
-      // Hiển thị màn hình chờ
-      loadingScreen.style.display = 'flex';
-      errorMsg.classList.remove('show');
+    const connectBtn = document.getElementById('connectBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-      try {
-        const res = await fetch(`${API_URL}/api/verify-key`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: input })
-        });
-        
-        // Giả lập độ trễ 1.5 giây để tạo cảm giác kết nối thực tế
-        await new Promise(resolve => setTimeout(resolve, 1500));
+    // ===== Toast =====
+    function toast(msg, type){
+        toastMsg.textContent = msg;
+        const ic = toastEl.querySelector('i');
+        if(type === 'error'){ ic.className='fas fa-exclamation-circle'; ic.style.color='#ff4d6d'; }
+        else if(type === 'info'){ ic.className='fas fa-info-circle'; ic.style.color='#22d3ee'; }
+        else { ic.className='fas fa-check-circle'; ic.style.color='#22d3ee'; }
+        toastEl.classList.add('show');
+        clearTimeout(window._tt);
+        window._tt = setTimeout(()=> toastEl.classList.remove('show'), 2600);
+    }
 
-        const data = await res.json();
-        loadingScreen.style.display = 'none';
-
-        if (res.ok) {
-          // Đúng Key -> Vào app
-          authScreen.style.display = 'none';
-          mainScreen.style.display = 'flex';
-          
-          // Thêm log xác thực
-          addLog(`> Xác thực thành công. Hạn: ${data.key.expText}`, 'log-success');
-        } else {
-          // Sai Key hoặc hết hạn
-          errorMsg.innerText = data.error;
-          errorMsg.classList.add('show');
-          shakeInput();
+    // ===== Device ID =====
+    function getDeviceId(){
+        let id = localStorage.getItem('proxyvip_device');
+        if(!id){
+            id = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+            localStorage.setItem('proxyvip_device', id);
         }
-      } catch (err) {
-        loadingScreen.style.display = 'none';
-        errorMsg.innerText = "LỖI KẾT NỐI ĐẾN SERVER!";
-        errorMsg.classList.add('show');
-        shakeInput();
-      }
+        return id;
     }
 
-    // Hiệu ứng rung khi sai key
-    function shakeInput() {
-      const inputGroup = document.querySelector('.input-group');
-      inputGroup.style.transform = 'translateX(-8px)';
-      setTimeout(() => inputGroup.style.transform = 'translateX(8px)', 60);
-      setTimeout(() => inputGroup.style.transform = 'translateX(-8px)', 120);
-      setTimeout(() => inputGroup.style.transform = 'translateX(8px)', 180);
-      setTimeout(() => inputGroup.style.transform = 'translateX(0)', 240);
-    }
+    // ===== GET KEY FREE =====
+    getKeyBtn.addEventListener('click', async () => {
+        getKeyBtn.disabled = true;
+        const originalHTML = getKeyBtn.innerHTML;
+        getKeyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG LẤY KEY...';
 
-    // Nhấn Enter để đăng nhập
-    document.getElementById('keyInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') verifyKey();
+        try {
+            const res = await fetch(`${API_BASE}/api/get-key`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deviceId: getDeviceId() })
+            });
+            const data = await res.json();
+
+            if(!data.success){
+                toast(data.message || 'Không thể lấy key', 'error');
+                if(data.key) showKeyResult(data.key);
+                return;
+            }
+
+            showKeyResult(data.key);
+            toast('🎉 Lấy key thành công!', 'success');
+        } catch(err){
+            toast('Lỗi kết nối server!', 'error');
+            console.error(err);
+        } finally {
+            getKeyBtn.disabled = false;
+            getKeyBtn.innerHTML = originalHTML;
+        }
     });
 
-    // Bật/tắt tính năng
-    function toggleFeature(element) {
-      element.classList.toggle('active');
-      const name = element.querySelector('.feature-name').innerText;
-      const isActive = element.classList.contains('active');
-      
-      const msg = isActive ? `> Đã bật: ${name}` : `> Đã tắt: ${name}`;
-      const type = isActive ? 'log-success' : 'log-error';
-      addLog(msg, type);
+    function showKeyResult(key){
+        keyResult.classList.add('show');
+        resultKey.textContent = key;
+        resultMeta.innerHTML = `Đã cấp lúc: <span>${new Date().toLocaleString('vi-VN')}</span>`;
     }
 
-    // Ghi log
-    function addLog(message, className) {
-      const consoleBox = document.getElementById('console');
-      const line = document.createElement('div');
-      line.className = `log-line ${className}`;
-      line.innerText = message;
-      consoleBox.appendChild(line);
-      consoleBox.scrollTop = consoleBox.scrollHeight;
+    // Copy key
+    resultKey.addEventListener('click', () => {
+        const k = resultKey.textContent;
+        if(k && k !== '---'){
+            navigator.clipboard.writeText(k).then(() => {
+                toast('📋 Đã copy key!', 'success');
+            }).catch(() => {
+                const r = document.createRange();
+                r.selectNodeContents(resultKey);
+                const s = window.getSelection();
+                s.removeAllRanges();
+                s.addRange(r);
+                document.execCommand('copy');
+                toast('📋 Đã copy key!', 'success');
+            });
+        }
+    });
+
+    // ===== KÍCH HOẠT KEY =====
+    async function doActivate(){
+        const val = keyInput.value.trim();
+
+        if(!val){
+            toast('Vui lòng nhập Key VIP!', 'error');
+            keyInput.focus();
+            return;
+        }
+
+        activateBtn.disabled = true;
+        const originalHTML = activateBtn.innerHTML;
+        activateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG KIỂM TRA...';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/verify-key`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: val })
+            });
+            const data = await res.json();
+
+            if(!data.success){
+                toast('❌ ' + (data.message || 'Key không hợp lệ'), 'error');
+                return;
+            }
+
+            toast('🎉 Kích hoạt KEY VIP thành công!', 'success');
+            setTimeout(() => switchToMain(data), 400);
+        } catch(err){
+            toast('Lỗi kết nối server!', 'error');
+            console.error(err);
+        } finally {
+            activateBtn.disabled = false;
+            activateBtn.innerHTML = originalHTML;
+        }
     }
-  </script>
+
+    function switchToMain(keyData){
+        screenActivate.classList.remove('active');
+        screenMain.classList.add('active');
+        keyInput.value = '';
+        keyResult.classList.remove('show');
+
+        if(keyData){
+            localStorage.setItem('proxyvip_active_key', JSON.stringify(keyData));
+        }
+    }
+
+    // ===== TOGGLE FEATURES =====
+    function bindToggle(input, row, name){
+        input.addEventListener('change', ()=>{
+            if(input.checked){
+                row.classList.add('on');
+                toast('🔫 Đã BẬT ' + name, 'success');
+            } else {
+                row.classList.remove('on');
+                toast('⛔ Đã TẮT ' + name, 'info');
+            }
+        });
+    }
+
+    // ===== ACTIONS =====
+    connectBtn.addEventListener('click', ()=>{
+        toast('⚡ Đang kết nối Proxy VIP...', 'info');
+        setTimeout(()=> toast('✅ Kết nối thành công · Ping 24ms', 'success'), 900);
+    });
+
+    settingsBtn.addEventListener('click', ()=>{
+        toast('⚙️ Cài đặt VIP đang phát triển', 'info');
+    });
+
+    logoutBtn.addEventListener('click', ()=>{
+        if(confirm('Đăng xuất Key?\nBạn sẽ cần nhập lại Key để sử dụng.')){
+            [tgAimbot, tgAimlock, tgAimneck].forEach(t=> t.checked = false);
+            [rowAimbot, rowAimlock, rowAimneck].forEach(r=> r.classList.remove('on'));
+            screenMain.classList.remove('active');
+            screenActivate.classList.add('active');
+            keyInput.value = '';
+            keyResult.classList.remove('show');
+            localStorage.removeItem('proxyvip_active_key');
+            toast('🔒 Đã đăng xuất Key VIP', 'info');
+        }
+    });
+
+    // ===== INIT =====
+    activateBtn.addEventListener('click', doActivate);
+    keyInput.addEventListener('keypress', e=>{ if(e.key === 'Enter') doActivate(); });
+    keyInput.addEventListener('input', function(){ this.value = this.value.toUpperCase(); });
+
+    bindToggle(tgAimbot, rowAimbot, 'AIM BOT');
+    bindToggle(tgAimlock, rowAimlock, 'AIM LOCK');
+    bindToggle(tgAimneck, rowAimneck, 'AIM NECK');
+})();
+</script>
 </body>
 </html>

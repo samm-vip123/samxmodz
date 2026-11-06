@@ -7,9 +7,7 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ⚠️ MẬT KHẨU ADMIN (Hãy đổi thành mật khẩu của bạn)
 const ADMIN_PASSWORD = "admin123"; 
-
 app.use(cors());
 app.use(express.json());
 
@@ -18,12 +16,14 @@ const DB_FILE = path.join(__dirname, 'keys.json');
 
 function loadDB() {
     if (!fs.existsSync(DB_FILE)) {
-        fs.writeFileSync(DB_FILE, JSON.stringify({ keys: [] }, null, 2));
+        fs.writeFileSync(DB_FILE, JSON.stringify({ keys: [], config: { proxypin: "" } }, null, 2));
     }
     try {
-        return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+        const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+        if(!data.config) data.config = { proxypin: "" };
+        return data;
     } catch (e) {
-        return { keys: [] };
+        return { keys: [], config: { proxypin: "" } };
     }
 }
 
@@ -37,7 +37,7 @@ function generateKey() {
     return `VIP-${part()}-${part()}-${part()}`;
 }
 
-// ============ API CHO USER (LẤY KEY FREE) ============
+// ============ API USER ============
 app.post('/api/get-key', (req, res) => {
     const { deviceId } = req.body || {};
     const db = loadDB();
@@ -54,13 +54,20 @@ app.post('/api/get-key', (req, res) => {
     }
 
     const key = generateKey();
-    const newKey = { key, deviceId: deviceId || null, createdAt: Date.now(), active: true, usedCount: 0 };
+    // Key free mặc định có hạn 1 ngày
+    const newKey = { 
+        key, 
+        deviceId: deviceId || null, 
+        createdAt: Date.now(), 
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 1 ngày
+        active: true, 
+        usedCount: 0 
+    };
     db.keys.push(newKey);
     saveDB(db);
     res.json({ success: true, key: newKey.key });
 });
 
-// ============ API XÁC THỰC KEY ============
 app.post('/api/verify-key', (req, res) => {
     const { key } = req.body;
     if (!key) return res.status(400).json({ success: false, message: 'Thiếu key' });
@@ -70,41 +77,66 @@ app.post('/api/verify-key', (req, res) => {
 
     if (!found) return res.status(404).json({ success: false, message: 'Key không tồn tại' });
     if (!found.active) return res.status(403).json({ success: false, message: 'Key bị vô hiệu hóa' });
+    
+    // Kiểm tra hạn sử dụng
+    if (found.expiresAt && Date.now() > found.expiresAt) {
+        return res.status(403).json({ success: false, message: 'Key đã hết hạn sử dụng' });
+    }
 
     found.usedCount = (found.usedCount || 0) + 1;
     saveDB(db);
     res.json({ success: true, message: 'Key hợp lệ' });
 });
 
+// ============ API CẤU HÌNH PROXYPIN (Chỉ Server lưu) ============
+app.get('/api/config', (req, res) => {
+    const db = loadDB();
+    res.json({ success: true, config: db.config });
+});
+
+app.post('/api/config', (req, res) => {
+    const { proxypin } = req.body;
+    const db = loadDB();
+    db.config.proxypin = proxypin || "";
+    saveDB(db);
+    res.json({ success: true, message: 'Đã lưu cấu hình lên máy chủ' });
+});
+
 // ============ MIDDLEWARE CHECK ADMIN ============
 function checkAdmin(req, res, next) {
     const pass = req.headers['x-admin-password'] || req.body.password;
-    if (pass !== ADMIN_PASSWORD) {
-        return res.status(401).json({ success: false, message: 'Sai mật khẩu Admin!' });
-    }
+    if (pass !== ADMIN_PASSWORD) return res.status(401).json({ success: false, message: 'Sai mật khẩu Admin!' });
     next();
 }
 
-// ============ API CHO ADMIN (QUẢN LÝ) ============
-// 1. Lấy danh sách toàn bộ key
+// ============ API ADMIN ============
 app.get('/api/admin/keys', checkAdmin, (req, res) => {
     const db = loadDB();
-    res.json({ success: true, keys: db.keys.reverse() }); // Đảo ngược để key mới lên đầu
+    res.json({ success: true, keys: db.keys.reverse() });
 });
 
-// 2. Admin tự tạo key (số lượng tùy chọn)
 app.post('/api/admin/create', checkAdmin, (req, res) => {
-    const { amount } = req.body;
+    const { amount, type } = req.body; // type: hour, day, week, month, lifetime
     const count = parseInt(amount) || 1;
     if (count > 100) return res.status(400).json({ success: false, message: 'Tối đa 100 key/lần' });
 
     const db = loadDB();
     const newKeys = [];
+    const now = Date.now();
+    
+    let expiresAt = null;
+    if (type === 'hour') expiresAt = now + (60 * 60 * 1000);
+    else if (type === 'day') expiresAt = now + (24 * 60 * 60 * 1000);
+    else if (type === 'week') expiresAt = now + (7 * 24 * 60 * 60 * 1000);
+    else if (type === 'month') expiresAt = now + (30 * 24 * 60 * 60 * 1000);
+    // lifetime => expiresAt = null
+
     for (let i = 0; i < count; i++) {
         const newKey = {
             key: generateKey(),
             deviceId: "ADMIN_CREATED",
-            createdAt: Date.now(),
+            createdAt: now,
+            expiresAt: expiresAt,
             active: true,
             usedCount: 0
         };
@@ -112,10 +144,9 @@ app.post('/api/admin/create', checkAdmin, (req, res) => {
         newKeys.push(newKey.key);
     }
     saveDB(db);
-    res.json({ success: true, message: `Đã tạo ${count} key`, keys: newKeys });
+    res.json({ success: true, message: `Đã tạo ${count} key (${type})`, keys: newKeys });
 });
 
-// 3. Admin xóa key
 app.delete('/api/admin/delete/:key', checkAdmin, (req, res) => {
     const keyToDelete = req.params.key;
     const db = loadDB();
@@ -128,7 +159,7 @@ app.delete('/api/admin/delete/:key', checkAdmin, (req, res) => {
     res.json({ success: true, message: 'Đã xóa key' });
 });
 
-// ============ PHỤC VỤ GIAO DIỆN WEB ============
+// ============ SERVE FRONTEND ============
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('*', (req, res) => {
@@ -137,6 +168,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`\n🚀 SERVER CHẠY TẠI CỔNG: ${PORT}`);
-    console.log(`👤 ADMIN PASSWORD: ${ADMIN_PASSWORD}`);
     console.log(`👉 TRANG ADMIN: http://localhost:${PORT}/Admin.html\n`);
 });
